@@ -1,3 +1,10 @@
+2006-11-21  John H Palmieri  <palmieri@math.washington.edu>
+
+	* released version 0.61.
+	
+	* bibweb: the AMS did something to break bibweb again, and I think
+	I've fixed it.
+
 2003-11-25  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.60.

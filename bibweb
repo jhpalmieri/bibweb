@@ -5,10 +5,10 @@
 # File: bibweb
 # Author: John H. Palmieri <palmieri@math.washington.edu>
 #         URL: http://www.math.washington.edu/~palmieri/Bibweb/
-# Version: 0.60 of Mon Nov 24 22:01:25 PST 2003
+# Version: 0.61 of Tue Nov 21 13:47:03 PST 2006
 # Description: retrieve bibliographical information from MathSciNet
 #              automatically
-# Copyright (c) 1997, 1998, 1999, 2000, 2001, 2002, 2003 John H. Palmieri
+# Copyright (c) 1997-2006 John H. Palmieri
 # License: distributed under GNU General Public License -- see below.
 #
 ####################################################################
@@ -54,7 +54,7 @@ use HTTP::Request::Common;
 
 $bibtex = 'bibtex';
 $thisprog = 'bibweb';
-$version = '0.60';
+$version = '0.61';
 # good choices for e_math: 'www.ams.org', 'ams.rice.edu',
 #   'ams.mathematik.uni-bielefeld.de', 'ams.mpim-bonn.mpg.de',
 #   'ams.u-strasbg.fr', 'ams.impa.br'
@@ -63,7 +63,7 @@ unless ($e_math) {$e_math = 'www.ams.org'}
 $use_stdout = 0;
 $debug = 0;
 $lax_comments = 0;
-$max_matches = 5;
+$max_matches = 20;
 $usage = <<EOT;
 This is $thisprog, version $version.
 To run bibtex on FILE, and then scan MathSciNet for missing
@@ -210,52 +210,24 @@ foreach $warning (@bibtex_output) {
 
     # parse year entry
   YEAR: {
-      if ($year eq '') {
-	  $dr = 'all';
+	  $dr = 'yearRangeFirst=&yearRangeSecond=&pg8=ET&s8=All';
 	  last YEAR;
 	  $yr = '';
-      };
-      if ('<' eq substr($year, 0, 1)) {
-	  $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Dlt';
-	  $yr = substr($year, 1);
-	  $yr = "arg3%3D$yr%26";
-	  $dr = 'pubyear';
-	  last YEAR; 
-      };
-      if ('=' eq substr($year, 0, 1)) {
-	  $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Deq';
-	  $yr = substr($year, 1);
-	  $yr = "arg3%3D$yr%26";
-	  $dr = 'pubyear';
-	  last YEAR; 
-      };
-      if ('>' eq substr($year, 0, 1)) {
-	  $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Dgt';
-	  $yr = substr($year, 1);
-	  $yr = "arg3%3D$yr%26";
-	  $dr = 'pubyear';
-	  last YEAR; 
-      };
-      $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Deq';
-      $yr = $year;
-      $dr = 'pubyear';
   }
 
     # construct URL
-    $url = "http://$e_math/msnmain/MathSci?bdlback=" .
-	"$yr" .
-	"co3%3DAND%26co4%3DAND%26co5%3DAND%26dr%3D" .
-	"$dr" .
-	"%26fn%3D130%26l%3D100%26pg3%3DICN%26pg4%3DTI%26pg5%3DJOUR%26pg6%3DALLF%26r%3D1%26s3%3D" .
+    $url = "http://$e_math/mathscinet/search/publications.html?" .
+	"pg4=AUCN&s4=" .
 	"$author" .
-	"%26s4%3D" .
+	"&co4=AND&pg5=TI&s5=" .
 	"$title" .
-	"%26s5%3D" .
+	"&co5=AND&pg6=JOUR&s6=" .
 	"$journal" .
-	"%26s6%3D" .
+	"&co6=AND&pg7=ALLF&s7=" .
 	"$misc" .
-	"$ord" .
-	"&fn=130&form=hldownload&fmt=bibtex&bdlall=Retrieve+All";
+	"&Submit=Search&dr=all&yrop=eq&arg3=&" .
+	"$yr" .
+	"&fmt=bibtex"	;
     unless ($use_stdout) {
 	&bib_print("", "$bibtex_long_comment \n");
     }
@@ -271,7 +243,7 @@ foreach $warning (@bibtex_output) {
 
     if ($response->is_success) {
 	$line = $response->as_string;
-	# if ($debug) {print "debug information: line is \n$line\n"};
+	#if ($debug) {print "debug information: line is \n$line\n"};
 
 	if ($line =~ /No Records Selected/) {
 	    &bib_print("No matches found; please revise your search criteria.\n\n",
@@ -279,22 +251,25 @@ foreach $warning (@bibtex_output) {
 	}
 	else {
 
-	    $line =~ (/<PRE>\s([^<]*)\s<\/PRE>/);
-	    $line = $1;
-		
-	    # split line at @
-	    @lines = split /@/, $line;
+	    @lines = ($line =~ m/\s*<pre>\n([^<]*)\n\s*<\/pre>/g);
 	    
-	    # scalar(@lines) is one more than the number of @ signs.
-	    $matches = scalar(@lines) - 1;
+	    #if ($debug) {print "debug information: now, lines are \n@lines \n"};
+
+	    #if ($debug) {print "number of matches: " . scalar(@lines) . "\n\n"};
+	    
+	    $matches = scalar(@lines);
 
 	    if ($matches == 1) {
 		# get mr number, insert comment, and replace with citation
+		$line = $1;
+		
+		# if ($debug) {print "NOW line is **$line**"};
+		
 		$line =~ /MRNUMBER = {([^}]*)}/;
 		$mr = $1;
 		&bib_print("", "$bsc Math Reviews number: $mr \n");
 		$line =~ s/(MR[^,]*)/$citation_orig/;
-		&bib_print ("", "$line");
+		&bib_print ("", "$line\n");
 	    }
 	    elsif ($matches <= $max_matches) {
 		foreach $line2 (@lines) {
@@ -303,8 +278,7 @@ foreach $warning (@bibtex_output) {
 			$line2 =~ /MRNUMBER = {([^}]*)}/;
 			$mr = $1;
 			&bib_print("", "$bsc Math Reviews number: $mr \n");
-			$line2 = "@" . $line2;
-			&bib_print ("", "$line2");
+			&bib_print ("", "$line2\n");
 		    }
 		}
 	    }
