@@ -11,7 +11,7 @@
 @comment  html file
 
 @ifinfo
-This is edition 0.50, November 2003, of the @cite{Bibweb
+This is edition 0.60, November 2003, of the @cite{Bibweb
 Manual}.  Copyright @copyright{} 1997, 1998, 1999, 2000, 2003 John H. Palmieri
 @end ifinfo
 
@@ -57,7 +57,7 @@ approved by the Free Software Foundation.
 Bibweb is a perl script written by John Palmieri (in consultation with
 Bill Dwyer).
 
-This is version 0.50, November 2003, of the Bibweb manual.  Bug reports
+This is version 0.60, November 2003, of the Bibweb manual.  Bug reports
 and suggestions for new features should go to
 @samp{palmieri@@math.washington.edu}.
 
@@ -555,9 +555,9 @@ screen, unless you also use the @samp{-o} option.
 
 @item -m @var{num}
 @itemx --max=@var{num}
-Return at most @var{num} matches to each citation.  Actually, @var{num}
-is rounded up according to the options available at MathSciNet:
-@var{num} will be rounded up to one of: 5, 10, 20, 50, 100, 1000.
+Return at most @var{num} matches to each citation.  Actually, if
+@var{num} is more than 50, I think bibweb returns at most 50 matches
+to each citation.
 
 @item -e @var{site}
 @itemx --emath=@var{site}
@@ -585,25 +585,6 @@ semicolon (;)
 Use @samp{%} to comment lines in Bib@TeX{}.  The default behavior is to
 use @samp{@@comment} as the comment character -- this is officially
 supported by Bib@TeX{}, while @samp{%} is not (although it seems to work).
-
-@item -b
-@itemx --bibtex
-Produce output in bibtex format (the default).
-
-@item -d
-@itemx --dvi
-Produce output in dvi format.
-
-@item -p
-@itemx --postscript
-Produce output in postscript format.
-
-@item -pdf
-Produce output in pdf format.
-
-@item -t
-@itemx --text
-Produce output in text format.
 
 @item -h
 @itemx --help
@@ -669,25 +650,12 @@ If you run the command
 @end example
 
 @noindent
-then bibweb will tell you that it is rounding 23 up to 50, and then it
-will look for all articles with @samp{serre} as the author.  In this
-case, it will tell you that there were more than 50 matches found.  I
-suppose if you typed
-
-@example
-  bibweb -m 1000 -c 'serre'
-@end example
-
-@noindent
-then you would get all of Serre's papers listed on your screen.  This
-might take a while.  You could instead run
-
-@example
-  bibweb -m 1000 -c 'serre' -o serre.bib
-@end example
-
-@noindent
-and then the output would be stored in the file @file{serre.bib}.
+then bibweb will look for all articles with @samp{serre} as the
+author.  In this case, it will tell you that there were more than 50
+matches found.  In version 0.60 of bibweb, there is an upper
+limit of about 50 on the number of matches found --- if there are
+more matches than this, you have to refine your search criteria to
+narrow things down.
 
 
 

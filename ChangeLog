@@ -1,3 +1,17 @@
+2003-11-25  John H Palmieri  <palmieri@math.washington.edu>
+
+	* released version 0.60.
+	
+	* bibweb: found alternative URL to use, which gives bibtex output
+	all at once (instead of doing things in two stages the way I have
+	been) -- this was in a program by Nevin Kapur (now at Cal Tech?)
+	which was similar in functionality to bibweb.  So I'm using that
+	URL instead.  This places a limitation on bibweb: it can only
+	return 50 matches for any citation, because I think that's how
+	many this URL can produce.  I also don't know how to use it to
+	retrieve the review (as a dvi, pdf, or postscript file) so I have
+	removed those options -- now it just gets bibtex information.
+
 2003-11-24  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.50.

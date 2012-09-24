@@ -57,12 +57,6 @@ bibweb [options] FILE
     -o FILE     use \'FILE\' as output (bib) file
     -c REF      looks up single citation \'REF\', instead of using
                  an auxfile for input
-    -b          get output in bibtex format (default)
-    -d          get output in dvi format (written to MR\#.dvi, where
-                 \'MR\#\' is the Math Reviews number of the reference)
-    -p          get output in postscript format (written to MR\#.ps)
-    -pdf        get output in pdf format (written to MR\#.pdf)
-    -t          get output in text format (written to MR\#.txt)
     -m NUM      return at most NUM entries (rounded up)
     -e WEB_SITE  use WEB_SITE for MathSciNet search
     -std        write output to STDOUT (the screen, ordinarily)

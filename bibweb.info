@@ -1,6 +1,6 @@
 This is bibweb.info, produced by makeinfo version 4.2 from bibweb.texi.
 
-   This is edition 0.50, November 2003, of the `Bibweb Manual'.
+   This is edition 0.60, November 2003, of the `Bibweb Manual'.
 Copyright (C) 1997, 1998, 1999, 2000, 2003 John H. Palmieri
 
 
@@ -12,7 +12,7 @@ Bibweb
    Bibweb is a perl script written by John Palmieri (in consultation
 with Bill Dwyer).
 
-   This is version 0.50, November 2003, of the Bibweb manual.  Bug
+   This is version 0.60, November 2003, of the Bibweb manual.  Bug
 reports and suggestions for new features should go to
 `palmieri@math.washington.edu'.
 
@@ -412,9 +412,9 @@ Options
 
 `-m NUM'
 `--max=NUM'
-     Return at most NUM matches to each citation.  Actually, NUM is
-     rounded up according to the options available at MathSciNet: NUM
-     will be rounded up to one of: 5, 10, 20, 50, 100, 1000.
+     Return at most NUM matches to each citation.  Actually, if NUM is
+     more than 50, I think bibweb returns at most 50 matches to each
+     citation.
 
 `-e SITE'
 `--emath=SITE'
@@ -440,25 +440,6 @@ Options
      Use `%' to comment lines in BibTeX.  The default behavior is to
      use `@comment' as the comment character - this is officially
      supported by BibTeX, while `%' is not (although it seems to work).
-
-`-b'
-`--bibtex'
-     Produce output in bibtex format (the default).
-
-`-d'
-`--dvi'
-     Produce output in dvi format.
-
-`-p'
-`--postscript'
-     Produce output in postscript format.
-
-`-pdf'
-     Produce output in pdf format.
-
-`-t'
-`--text'
-     Produce output in text format.
 
 `-h'
 `--help'
@@ -502,19 +483,11 @@ sites), and will produce no usable results (it will be fast, though).
 
        bibweb -m 23 -c 'serre'
 
-then bibweb will tell you that it is rounding 23 up to 50, and then it
-will look for all articles with `serre' as the author.  In this case,
-it will tell you that there were more than 50 matches found.  I suppose
-if you typed
-
-       bibweb -m 1000 -c 'serre'
-
-then you would get all of Serre's papers listed on your screen.  This
-might take a while.  You could instead run
-
-       bibweb -m 1000 -c 'serre' -o serre.bib
-
-and then the output would be stored in the file `serre.bib'.
+then bibweb will look for all articles with `serre' as the author.  In
+this case, it will tell you that there were more than 50 matches found.
+In version 0.60 of bibweb, there is an upper limit of about 50 on the
+number of matches found -- if there are more matches than this, you
+have to refine your search criteria to narrow things down.
 
 
 File: bibweb.info,  Node: Installation,  Prev: How to,  Up: Top
@@ -545,6 +518,6 @@ Node: Citations4698
 Node: Invoking bibweb8322
 Node: Basic operation8552
 Node: Options13537
-Node: Installation17296
+Node: Installation16834
 
 End Tag Table

@@ -5,7 +5,7 @@
 # File: bibweb
 # Author: John H. Palmieri <palmieri@math.washington.edu>
 #         URL: http://www.math.washington.edu/~palmieri/Bibweb/
-# Version: 0.50 of Tue Nov 25 13:34:11 PST 2003
+# Version: 0.60 of Mon Nov 24 22:01:25 PST 2003
 # Description: retrieve bibliographical information from MathSciNet
 #              automatically
 # Copyright (c) 1997, 1998, 1999, 2000, 2001, 2002, 2003 John H. Palmieri
@@ -36,14 +36,6 @@
 #    -o FILE     specify FILE as output (bib) file.  If FILE ends in
 #                 ".bib", write to FILE; otherwise, write to FILE.bib
 #    -c REF      looks up REF, rather than using an auxfile for input
-
-#    -b          get output in bibtex format (default)
-#    -d          get output in dvi format (written to MR#.dvi, where
-#                 'MR#' is the Math Reviews number of the reference)
-#    -p          get output in postscript format (written to MR#.ps)
-#    -pdf        get output in pdf format (written to MR#.pdf)
-#    -t          get output in text format (written to MR#.txt)
-
 #    -m NUM      return at most NUM entries (where NUM is rounded up
 #                 to 5, 10, 20, 50, 100, 1000)
 #    -e WEB_SITE use WEB_SITE for MathSciNet search
@@ -62,7 +54,7 @@ use HTTP::Request::Common;
 
 $bibtex = 'bibtex';
 $thisprog = 'bibweb';
-$version = '0.50';
+$version = '0.60';
 # good choices for e_math: 'www.ams.org', 'ams.rice.edu',
 #   'ams.mathematik.uni-bielefeld.de', 'ams.mpim-bonn.mpg.de',
 #   'ams.u-strasbg.fr', 'ams.impa.br'
@@ -81,12 +73,6 @@ To run bibtex on FILE, and then scan MathSciNet for missing
     -o FILE     use \'FILE\' as output (bib) file
     -c REF      looks up single citation \'REF\', instead of using
                  an auxfile for input
-    -b          get output in bibtex format (default)
-    -d          get output in dvi format (written to MR\#.dvi, where
-                 \'MR\#\' is the Math Reviews number of the reference)
-    -p          get output in postscript format (written to MR\#.ps)
-    -pdf        get output in pdf format (written to MR\#.pdf)
-    -t          get output in text format (written to MR\#.txt)
     -m NUM      return at most NUM entries (rounded up)
     -e WEB_SITE  use WEB_SITE for MathSciNet search
     -std        write output to STDOUT (the screen, ordinarily)
@@ -102,11 +88,6 @@ GetOptions("input|i=s" => \$auxfile,
 	   "output|o=s" => \$bibfile,
 	   "stdout|std|s" => \$use_stdout,
 	   "cite|c=s" => \$only_cite,
-	   "bibtex|bib|b" => \$use_bibtex,
-	   "dvi|d" => \$use_dvi,
-	   "postscript|ps|p" => \$use_postscript,
-	   "pdf" => \$use_pdf,
-	   "text|txt|t" => \$use_text,
 	   "max|m=i" => \$max_matches,
 	   "emath|e=s" => \$e_math,
 	   "separator|sep=s" => \$new_separator,
@@ -172,39 +153,9 @@ else {
     @bibtex_output = `$bibtex $auxfile`;
 }
 
-OUTPUTTYPE: {
-    if ($use_bibtex) {
-	$output_type = 'bibtex';
-	$getitem_return = 'bibtex';
-	last OUTPUTTYPE;
-    };
-    if ($use_dvi) {
-	$output_type = 'dvi';
-	$use_bibtex = 0;
-	$getitem_return = 'dvi';
-	last OUTPUTTYPE;
-    };
-    if ($use_postscript) {
-	$output_type = 'postscript';
-	$use_bibtex = 0;
-	$getitem_return = 'ps';
-	last OUTPUTTYPE;
-    };
-    if ($use_pdf) {
-	$output_type = 'pdf';
-	$use_bibtex = 0;
-	$getitem_return = 'pdf';
-	last OUTPUTTYPE;
-    };
-    if ($use_text) {
-	$output_type = 'text';
-	$use_bibtex = 0;
-	$getitem_return = 'hl';	
-	last OUTPUTTYPE;
-    };
-    $use_bibtex = 1;
-    $output_type = 'bibtex';
-    $getitem_return = 'bibtex';
+if ($max_matches > 50) {
+    $max_matches = 50;
+    print "Rounding -m argument down to $max_matches.\n\n";
 }
 
 $semicolon = ";";
@@ -291,16 +242,20 @@ foreach $warning (@bibtex_output) {
   }
 
     # construct URL
-    $url =
-	"http://$e_math/msnmain?fn=130&form=fullsearch&preferred_language-en&Submit=Start+Search&" .
-	"pg4=AUCN&s4=$author&co4=AND" .
-	"&pg5=TI&s5=$title&co5=AND" .
-	"&pg6=JOUR&s6=$journal&co6=AND" .
-	"&pg7=ALLF&s7=$misc" .
-        "&dr=$dr" .
-	"&yrop=$ord&arg3=$yr" .
-	"&yearRangeFirst=&yearRangeSecond=" .
-	"&pg3=ET&s3=All&l=20&reference_lists=show&redirect=$redirect";
+    $url = "http://$e_math/msnmain/MathSci?bdlback=" .
+	"$yr" .
+	"co3%3DAND%26co4%3DAND%26co5%3DAND%26dr%3D" .
+	"$dr" .
+	"%26fn%3D130%26l%3D100%26pg3%3DICN%26pg4%3DTI%26pg5%3DJOUR%26pg6%3DALLF%26r%3D1%26s3%3D" .
+	"$author" .
+	"%26s4%3D" .
+	"$title" .
+	"%26s5%3D" .
+	"$journal" .
+	"%26s6%3D" .
+	"$misc" .
+	"$ord" .
+	"&fn=130&form=hldownload&fmt=bibtex&bdlall=Retrieve+All";
     unless ($use_stdout) {
 	&bib_print("", "$bibtex_long_comment \n");
     }
@@ -318,15 +273,43 @@ foreach $warning (@bibtex_output) {
 	$line = $response->as_string;
 	# if ($debug) {print "debug information: line is \n$line\n"};
 
-	# get number of matches
-	if (($line =~ (/Number of Matches:.*<\/b> ([0-9]*)/))
-	  or ($line =~ (/Item:.*<strong>([0-9]*)<\/strong>/))) {
-	    # if ($debug) {print "debug information: line is \n$line\n"};
+	if ($line =~ /No Records Selected/) {
+	    &bib_print("No matches found; please revise your search criteria.\n\n",
+		       "$bsc No matches found. \n$bsc\n");
+	}
+	else {
 
-	    $matches = $1;
-	    if ($debug) {print "debug information: matches = $matches\n"};
+	    $line =~ (/<PRE>\s([^<]*)\s<\/PRE>/);
+	    $line = $1;
+		
+	    # split line at @
+	    @lines = split /@/, $line;
+	    
+	    # scalar(@lines) is one more than the number of @ signs.
+	    $matches = scalar(@lines) - 1;
 
-	    if ($matches > $max_matches) {
+	    if ($matches == 1) {
+		# get mr number, insert comment, and replace with citation
+		$line =~ /MRNUMBER = {([^}]*)}/;
+		$mr = $1;
+		&bib_print("", "$bsc Math Reviews number: $mr \n");
+		$line =~ s/(MR[^,]*)/$citation_orig/;
+		&bib_print ("", "$line");
+	    }
+	    elsif ($matches <= $max_matches) {
+		foreach $line2 (@lines) {
+		    if ($line2 =~ /[a-zA-Z]/) {
+			# get mr number and insert comment
+			$line2 =~ /MRNUMBER = {([^}]*)}/;
+			$mr = $1;
+			&bib_print("", "$bsc Math Reviews number: $mr \n");
+			$line2 = "@" . $line2;
+			&bib_print ("", "$line2");
+		    }
+		}
+	    }
+	    elsif ($matches < 50) {
+		# too many matches found
 		&bib_print("More than $max_matches matches found " .
 			   "($matches); " .
 			   "please refine your search criteria,\n" .
@@ -334,87 +317,18 @@ foreach $warning (@bibtex_output) {
 			   "$bsc More than $max_matches matches found " .
 			   "($matches). \n$bsc\n");
 	    }
-	    elsif ( not $match_info_printed ) {
-		$plural = "es";
-		$match_info_printed = 1;
-		if ($matches == 1) {$plural = ""}
-		&bib_print("$matches match$plural found. \n\n", "" );
-
-		# given match, get MR number, convert to forms for use in URL
-	    while ($line =~ (/<strong>MR([^<]*)<\/strong>\s*<strong>\(([^)]*)\)<\/strong>/g)) {
-		# if ($debug) {print "debug information: line is \n$line\n"};
-
-		# there are now new MR numbers: a unique 7 digit number
-		# assigned to each item in the database.  Assign this to $mr,
-		# and use it to search.  Assign old MR number to $old_mr, and
-		# use it for printing.
-		$mr = $1;
-		$old_mr = $2;
-		&bib_print("Math Reviews number: $old_mr \n", "$bsc Math Reviews number: $old_mr \n");
-		$old_mr =~ tr/ //d;
-		$old_mr =~ tr/_/:/;
-		$old_mr =~ tr/\#/:/;
-		$old_mr =~ tr/,/:/;
-		
-		if ($debug) {print "debug information: old_mr = $old_mr\n"};
-		
-		$new_url = "http://$e_math/mathscinet-getitem?mr=$mr&return=$getitem_return";
-		
-		if ($debug) {print "debug information: new_url = \n$new_url\n"};
-		
-		# call wget again, process its output
-		$at_sign_found = 0;
-		
-                my $new_ua = LWP::UserAgent->new;
-
-		if ($output_type eq 'bibtex') {
-		    my $new_response = $new_ua->request(GET $new_url);
-		    
-		    if ($new_response->is_success){
-			$line2 = $new_response->as_string;
-			# if ($debug) {print "debug information: line2 = \n$line2\n"};
-			# look for <PRE> at start, </PRE> at end of bibtex
-			
-			$line2 =~ (/<PRE>\s([^<]*)\s<\/PRE>/);
-			$line2 = $1;
-			
-			if ($matches == 1) {
-			    $line2 =~ s/MR$old_mr/$citation_orig/;
-			}
-			
-			&bib_print("", "$line2" );
-		    }
-		}
-		# dvi, ps, pdf, txt output
-		else {
-		    $filename = "MR$mr.$getitem_return";
-		    open (FILE, ">$filename") or die "Can't open `$filename'\n";
-		    $response = $new_ua->mirror($new_url , $filename);
-		    if ($response->is_success) {
-			print "  Output written to $filename\n";
-		    }
-		    else {
-			print "  Error writing to $filename\n";
-		    }
-		    close (FILE);
-		}
-	    }		    
+	    else {
+		# way too many matches found
+		&bib_print("At least $matches matches found; " .
+			   "please refine your search criteria.\n\n",
+			   "$bsc At least $matches matches found. \n$bsc\n");
 	    }
-	}
-	
-	# warning messages...
-	elsif ($line =~ (/Sorry, no matches found/)) {
-	    &bib_print("No matches found; please revise your search criteria.  \n\n",
-			"$bsc No matches found. \n$bsc\n");
-	}
-	elsif ($line =~ (/Sorry, /)) {
-	    &bib_print("There was an unknown error.  " .
-		       "Please check for typos, or just try again.\n\n",
-		       "$bsc Syntax or server error. \n$bsc\n");
+
+	    # can max_matches be larger than 50??
 	}
     }
 }
-	
+
 close(BIBFILE);
 
 # run bibtex again, to make use of new keys
@@ -447,10 +361,7 @@ sub check_bibfile {
 # print to screen and to BIBFILE, unless writing to STDOUT
 sub bib_print {
     local($line1, $line2) = ($_[0], $_[1]);
-    if (not $use_bibtex) {
-	print $line1;
-    }
-    elsif ($use_stdout) {
+    if ($use_stdout) {
 	print $line2;
     }
     else {
