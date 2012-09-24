@@ -1,0 +1,718 @@
+\input texinfo   @c -*-texinfo-*-
+@setfilename bibweb.info
+@settitle Bibweb Manual
+@c footnotestyle separate
+@c paragraphindent 2
+@iftex
+@tolerance 10000
+@end iftex
+
+@comment  use 'perl texi2html -menu -split_chapter bibweb.texi' to get an
+@comment  html file
+
+@ifinfo
+This is edition 0.50, November 2003, of the @cite{Bibweb
+Manual}.  Copyright @copyright{} 1997, 1998, 1999, 2000, 2003 John H. Palmieri
+@end ifinfo
+
+@titlepage
+@title{Bibweb Manual}
+
+@author (info by John H. Palmieri)
+
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1997, 1998, 2000, 2003 John H. Palmieri
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+@end ignore
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+section entitled ``Copying'' is included exactly as in the original, and
+provided that the entire resulting derived work is distributed under the
+terms of a permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the Free Software Foundation.
+@end titlepage
+@page
+
+@ifinfo
+@node top, Introduction, (dir), (dir)
+@comment node-name, next,          previous, up
+@top Bibweb
+@end ifinfo
+
+Bibweb is a perl script written by John Palmieri (in consultation with
+Bill Dwyer).
+
+This is version 0.50, November 2003, of the Bibweb manual.  Bug reports
+and suggestions for new features should go to
+@samp{palmieri@@math.washington.edu}.
+
+This is the first version of this manual; it is done (except for the
+indices). 
+
+@menu
+* Introduction::                Overview, quick instructions
+* How to::                      More detailed instructions
+* Installation::                How to install
+
+@detailmenu --- The Detailed Node Listing ---
+
+How to
+
+* La@TeX{} file::               What your La@TeX{} file should look like
+* Invoking bibweb::             What bibweb does
+
+La@TeX{} file
+
+* Bibliography command::        What the \bibliography command should look like
+* Citations::                   Formats for citations
+
+Invoking bibweb
+
+* Basic operation::             Quick instructions
+* Options::                     Options for running bibweb
+
+@end detailmenu
+@end menu
+
+@comment in any given node: 
+@comment use '@cindex CONCEPT' to add node to concept index
+@comment use '@findex FUNCTION' for function index
+@comment use '@vindex VARIABLE' for variable index
+@comment use '@kindex KEY' for key index
+
+
+
+@comment ---------------------------------------------------------
+
+@node Introduction, How to, top, top
+@chapter Introduction
+
+Bibweb is a utility for automatically retrieving bibliographical
+information from the American Mathematical Society's MathSciNet search
+engine (available at @url{http://www.ams.org/mathscinet}).  (In
+particular, in order to use bibweb, you must have access to MathSciNet,
+which means that you or your institution has at some point shelled out
+some quantity of money to the AMS.  Anyway...)
+
+If you're too lazy to go to the library or use a web browser to find out
+bibliographical information for that ground-breaking paper you're
+writing, then bibweb is the program for you.  It is intended for use
+with Bib@TeX{} (which means with La@TeX{}), and you have to write
+citations in a particular format, but that's about all there is to it.
+
+Briefly: once you've installed bibweb, if you are editing a file called
+@file{bozo.tex}, then you need to insert the following line:
+
+@example
+  \bibliography@{bozo@}
+@end example
+
+@noindent
+If you are also using the Bib@TeX{} file @file{junk.bib}, then you
+should use the following line:
+
+@example
+  \bibliography@{junk,bozo@}
+@end example
+
+@noindent
+When you want to cite a paper whose bibliographical information you are
+lacking, say ``Periodic phenomena in the Adams-Novikov spectral
+sequence'' by H. R. Miller, D. C. Ravenel, and W. S. Wilson, then you
+give La@TeX{} the command
+
+@example
+  \cite@{miller-ravenel-wilson-periodic@}
+@end example
+
+@noindent
+or
+
+@example
+  \cite@{miller-ravenel-wilson-novikov@}
+@end example
+
+@noindent
+or
+
+@example
+  \cite@{miller-ravenel-wilson@}
+@end example
+
+@noindent
+or
+
+@example
+  \cite@{miller-ravenel;adams-spectral@}
+@end example
+
+@noindent
+When you run this through La@TeX{}, it won't find the citation (by
+assumption); Bib@TeX{} won't find a citation either.  When you run
+bibweb, though, by typing
+
+@example
+  bibweb bozo
+@end example
+
+@noindent
+at the shell prompt, then it takes your citation and queries
+MathSciNet.  If it finds a match, it writes the bibliographic
+information, in Bib@TeX{} format, to the file @file{bozo.bib}.
+
+Bibweb also lets you search for just a single citation, it lets you
+specify the names of the input (@TeX{}) and output (Bib@TeX{}) files
+separately, and has other options.  @xref{Options}, for details.
+
+
+
+
+
+
+@comment ---------------------------------------------------------
+
+@node How to, Installation, Introduction, top
+@chapter How to
+
+In this section, we give detailed instructions for how to use bibweb.
+
+@menu
+* La@TeX{} file::               What your La@TeX{} file should look like
+* Invoking bibweb::             What bibweb does
+@end menu
+
+
+
+@comment ---------------------------------------------------------
+
+@node La@TeX{} file, Invoking bibweb, How to, How to
+@section La@TeX{} file
+
+In this section, we describe how to write your La@TeX{} file so that it
+will produce output suitable for bibweb.
+
+@menu
+* Bibliography command::        What the \bibliography command should look like
+* Citations::                   Formats for citations
+@end menu
+
+@comment ---------------------------------------------------------
+
+@node Bibliography command, Citations, La@TeX{} file, La@TeX{} file
+@subsection Bibliography command
+
+You need to decide where you want to put the bibliographic information
+that bibweb will give you; this should be a file ending in @samp{.bib}.
+Suppose you decide to use a file called @file{jimbob.bib} (which may or
+may not exist at this point).  Then you need the following line in your
+La@TeX{} file:
+
+@example
+  \bibliography@{jimbob@}
+@end example
+
+@noindent
+As indicated above, if you already have some other Bib@TeX{} files lying
+around, and you also want to use these (say they're called
+@file{manny.bib}, @file{moe.bib}, and @file{jack.bib}), 
+then you should instead use the following line:
+
+@example
+  \bibliography@{manny,moe,jack,jimbob@}
+@end example
+
+
+
+
+@comment ---------------------------------------------------------
+
+@node Citations,  , Bibliography command, La@TeX{} file
+@subsection Citations
+
+There are two different formats for citations that bibweb knows how to
+handle, and it handles them in different ways.
+
+@itemize @bullet
+@item
+Simpler format:
+
+@example
+  \cite@{aaa-bbb-ccc-ddd-year@}
+@end example
+
+@samp{aaa} gets sent as the author, @samp{bbb}, @samp{ccc}, and
+@samp{ddd} get sent as miscellany (they can match anything, including
+the author, title, journal, reviewer, or the text of the review).
+@samp{year} should be of the form @samp{<1995} or @samp{>1995} or
+@samp{=1995} or @samp{1995}, in which case bibweb only searches for
+papers from the appropriate years.  @samp{1995} is treated the same as
+@samp{=1995}.  It seems that specifying a year or range of years slows
+things down tremendously, so you might want to avoid this.  Also, I
+think if @samp{year} is in some other format, it will just get ignored.
+
+For example, @samp{\cite@{devinatz-hopkins-nilpotence@}} matches two
+papers: one is ``Nilpotence and stable homotopy theory, I'' by Devinatz,
+Hopkins, and Smith; the other is ``Morava's change of rings theorem'' by
+Devinatz, for which ``Hopkins'' and ``nilpotence'' are mentioned in the
+review.
+
+If you want to avoid the second sort of match, you can use the more
+involved format.
+
+@item
+More involved format:
+
+@example
+  \cite@{a1-a2-...-ak;t1-t2-...-tm;j1-j2-...jn;year@}
+@end example
+
+@samp{year} should be just like field @samp{year} in the simpler format,
+but it slows things down, so I would avoid it.  @samp{a1}, ...,
+@samp{ak} are treated as authors, @samp{t1}, ..., @samp{tm} are treated
+as words in the title, @samp{j1}, ..., @samp{jn} are treated as words in
+the journal name.  You don't have to include all of the fields.
+
+For example, @samp{\cite@{devinatz-hopkins;nilpotence@}} matches only
+the paper ``Nilpotence and stable homotopy theory, I'' by Devinatz,
+Hopkins, and Smith.  @samp{\cite@{miller-wilkerson;vanishing-steenrod@}}
+matches only ``Vanishing lines for modules over the Steenrod algebra''
+by Miller and Wilkerson, as does
+@samp{\cite@{miller-wilkerson;vanishing-steenrod;;<1985@}}, as does
+@samp{\cite@{miller-wilkerson;vanishing-steenrod;pure;<1985@}} (the
+paper appeared in the @cite{Journal of Pure and Applied Algebra}).
+
+@item
+Using wildcards:
+
+You can use @samp{*} as a wildcard; for instance,
+@samp{\cite@{adams;hopf-invar*-one@}} would return the two papers by
+Adams called ``On the non-existence of elements of Hopf invariant one''.
+
+When using MathSciNet by hand, if you want to search for papers by Mike
+Hopkins, you could set the author field equal to @samp{hopkins, m*}.  On
+the other hand, Bib@TeX{} treats commas as separators: if you give
+Bib@TeX{} the command @samp{\cite@{hopkins,m*;global@}}, Bib@TeX{} will
+treat @samp{hopkins} as one source and @samp{m*;global} as another.  So
+to get bibweb to do the right thing, you should use a period instead of
+a comma: use the command
+
+@example
+  \cite@{hopkins.m*;global@}
+@end example
+
+Bibweb will translate the @samp{.} to a @samp{,} before sending the
+query to MathSciNet, so this citation would produce
+
+@example
+%% Math Reviews number: 89g:55022 
+@@incollection @{hopkins.m*;global,
+    AUTHOR = @{Hopkins, Michael J.@},
+     TITLE = @{Global methods in homotopy theory@},
+ BOOKTITLE = @{Homotopy theory (Durham, 1985)@},
+     PAGES = @{73--96@},
+ PUBLISHER = @{Cambridge Univ. Press@},
+   ADDRESS = @{Cambridge@},
+      YEAR = @{1987@},
+   MRCLASS = @{55Q45 (55P42 55P60 55Q10)@},
+  MRNUMBER = @{89g:55022@},
+MRREVIEWER = @{Douglas C. Ravenel@},
+@}
+@end example
+
+@end itemize
+
+
+
+
+@comment ---------------------------------------------------------
+
+@node Invoking bibweb,  , La@TeX{} file, How to
+@section Invoking bibweb
+
+@menu
+* Basic operation::             Quick instructions
+* Options::                     Options for running bibweb
+@end menu
+
+
+
+
+
+
+@comment ---------------------------------------------------------
+
+@node Basic operation, Options, Invoking bibweb, Invoking bibweb
+@subsection Basic operation
+
+In this section, we give the basic instructions for running bibweb, as
+well as a brief description of what bibweb does.
+
+@example
+  bibweb @var{file}
+@end example
+
+@noindent
+will run bibweb on @var{file}.  For example, to run bibweb on the file
+@file{elvis}, you type
+
+@example
+  bibweb elvis
+@end example
+
+@noindent
+Then bibweb will run Bib@TeX{} on @file{elvis} and read through the list
+of missing citations.  For each such citation, it searches MathSciNet,
+and writes its results to the file @file{elvis.bib}.  Once it has done
+this, it runs Bib@TeX{} again, to make use of any new citations.  
+
+If bibweb can't find the file @file{elvis.aux} (which it wants to pass
+to Bib@TeX{}), it prints an error message and stops.  If it can't write
+to @file{elvis.bib}, it should also print an error message and stop.
+
+By ``searches MathSciNet'', I mean that it fires up a web browser that
+goes to the MathSciNet site, gives it the appropriate query, gets the
+response, and then quits.  In recent versions of bibweb ---
+versions 0.50 and later --- it uses a web browser incorporated into
+perl.  (Older versions used a program like @samp{lynx} or
+@samp{wget} for web browsing.)
+
+By ``its results'', I mean the following:
+
+@itemize @bullet
+@item
+If bibweb finds exactly one entry matching your citation, it puts it in
+@file{elvis.bib} with the key you chose.  For instance, if you have
+
+@example
+  \cite@{kan-miller-splitting-spaces@}
+@end example
+
+then bibweb puts something like the following in @file{elvis.bib}:
+
+@example
+%%   citation 'kan-miller-splitting-spaces' 
+%% Math Reviews number: 57 #7582 
+@@article @{kan-miller-splitting-spaces, 
+    AUTHOR = @{Kan, Daniel M. and Miller, Edward Y.@},
+     TITLE = @{Splitting spaces with finite group actions@},
+   JOURNAL = @{Topology@},
+    VOLUME = @{16@},
+      YEAR = @{1977@},
+    NUMBER = @{4@},
+     PAGES = @{403--407@},
+   MRCLASS = @{55C35@},
+  MRNUMBER = @{57 \#7582@},
+MRREVIEWER = @{J. P. May@},
+@}
+@end example
+
+@item
+If it finds several matches (at most 5), it writes them all to
+@file{elvis.bib}, but leaves the original citation undefined.  (The new
+ones have citations given by their Math Reviews numbers.)  So at this
+point, you have to edit @file{elvis.bib} to change the keys of the
+papers you're interested in, or you have to change your \cite command to
+match what was written into @file{elvis.bib}.
+
+For example, if you have
+
+@example
+  \cite@{serre;faisceaux@}
+@end example
+
+@noindent
+then there are two matches (or maybe there are three, now), which get
+entered into @file{elvis.bib} as
+
+@example
+%%   citation 'serre;faisceaux' 
+%% Math Reviews number: 35 #3088 
+@@article @{MR35:3088,
+    AUTHOR = @{Serre, Jean-Pierre@},
+     TITLE = @{Prolongement de faisceaux analytiques coh\'erents@},
+   JOURNAL = @{Ann. Inst. Fourier (Grenoble)@},
+    VOLUME = @{16@},
+      YEAR = @{1966@},
+    NUMBER = @{fasc. 1@},
+     PAGES = @{363--374@},
+   MRCLASS = @{32.50 (32.27)@},
+  MRNUMBER = @{35 \#3088@},
+MRREVIEWER = @{B. Shiffman@},
+@}
+%% Math Reviews number: 16,953c 
+@@article @{MR16:953c,
+    AUTHOR = @{Serre, Jean-Pierre@},
+     TITLE = @{Faisceaux alg\'ebriques coh\'erents@},
+   JOURNAL = @{Ann. of Math. (2)@},
+    VOLUME = @{61@},
+      YEAR = @{1955@},
+     PAGES = @{197--278@},
+   MRCLASS = @{14.0X@},
+  MRNUMBER = @{16,953c@},
+MRREVIEWER = @{C. Chevalley@},
+@}
+@end example
+
+@item
+If there are more than 5 matches, it tells you that, and doesn't add any
+new entries to @file{elvis.bib}.  For example, if you have
+
+@example
+  \cite@{serre@}
+@end example
+
+@noindent
+then bibweb adds the following to @file{elvis.bib}:
+
+@example
+%%   citation 'serre' 
+%% More than 5 matches found. 
+@end example
+
+@noindent
+You can change the number @samp{5} to something else by using the
+@samp{-m} option.  @xref{Options}.
+
+@item
+If it doesn't find any matches, it tells you that, and doesn't add any
+new entries to @file{elvis.bib}.  For example, if you have
+
+@example
+  \cite@{serre-kan@}
+@end example
+
+@noindent
+then bibweb adds the following to @file{elvis.bib}:
+
+@example
+%%   citation 'serre-kan' 
+%% No matches found. 
+@end example
+
+@item
+Occasionally, bibweb will say it only finds one match, but it will add
+several things to @file{elvis.bib}.  This happens when there are several
+papers whose reviews are all together on MathSciNet (see
+@samp{\cite@{dwyer-kan;obstruction-theory-diagrams@}}, for example).  In
+these cases, bibweb ought to do a good job of assigning your chosen
+bibliographical key to the correct entry, but you might want to
+double-check.
+
+@end itemize
+
+Finally, note that if you give the citation
+
+@example
+  \cite@{serre@}
+@end example
+
+@noindent
+and run bibweb, then run bibweb again, it will not query MathSciNet
+again; instead it will tell you something like ``You've searched for
+`serre' before''.
+
+
+
+@comment ---------------------------------------------------------
+
+@node Options,  , Basic operation, Invoking bibweb
+@subsection Options
+
+bibweb can be run with several different options.
+
+@table @samp
+@item -i @var{file}
+@itemx --input=@var{file}
+Run Bib@TeX{} on @var{file}.
+
+@item -o @var{file}
+@itemx --output=@var{file}
+Write output to @var{file} (after appending @samp{.bib} to @var{file},
+if necessary).
+
+@item --std
+Write output to STDOUT (the screen, ordinarily).
+
+@item -c @var{citation}
+@itemx --cite=@var{citation}
+Look up only @var{citation}.  In this case, the output is written to the
+screen, unless you also use the @samp{-o} option.
+
+@item -m @var{num}
+@itemx --max=@var{num}
+Return at most @var{num} matches to each citation.  Actually, @var{num}
+is rounded up according to the options available at MathSciNet:
+@var{num} will be rounded up to one of: 5, 10, 20, 50, 100, 1000.
+
+@item -e @var{site}
+@itemx --emath=@var{site}
+Search MathSciNet at the web site @var{site}.  The default value is read
+from the environment variable @var{MATHSCINET_SITE}; if this variable
+hasn't been set, the default is @samp{www.ams.org}.  Some other good
+choices are @samp{ams.rice.edu}, @samp{ams.mathematik.uni-bielefeld.de},
+@samp{ams.mpim-bonn.mpg.de}, @samp{ams.u-strasbg.fr}, and
+@samp{ams.impa.br}---see
+the MathSciNet homepage for more information.  If you choose a value for
+@var{site} that's not from this list, bibweb prints a warning, but goes
+ahead and tries to use it anyway.  You can use a bit of shorthand for
+@var{site}: @samp{ams} stands for @samp{www.ams.org}; @samp{rice}
+stands for @samp{ams.rice.edu}; @samp{bielefeld} stands for
+@samp{ams.mathematik.uni-bielefeld.de}; @samp{bonn} stands for
+@samp{ams.mpim-bonn.mpg.de}; @samp{strasbg} stands for
+@samp{ams.u-strasbg.fr}; and @samp{impa} stands for
+@samp{ams.impa.br}.
+
+@item -sep @var{char}
+Use @var{char} to delimit fields in long citation format, instead of
+semicolon (;)
+
+@item -lax
+Use @samp{%} to comment lines in Bib@TeX{}.  The default behavior is to
+use @samp{@@comment} as the comment character -- this is officially
+supported by Bib@TeX{}, while @samp{%} is not (although it seems to work).
+
+@item -b
+@itemx --bibtex
+Produce output in bibtex format (the default).
+
+@item -d
+@itemx --dvi
+Produce output in dvi format.
+
+@item -p
+@itemx --postscript
+Produce output in postscript format.
+
+@item -pdf
+Produce output in pdf format.
+
+@item -t
+@itemx --text
+Produce output in text format.
+
+@item -h
+@itemx --help
+Print a short help message, and then quit.
+
+@end table
+
+
+For example, any of the following commands
+
+@example
+  bibweb -i test -o a -m 10
+  bibweb test -o a -m 10
+  bibweb -o a -m 10 test
+  bibweb --output=a --max=10 test
+@end example
+
+@noindent
+has bibweb read the file @file{text.aux} and write output to
+@file{a.bib}, returning at most 10 matches for each citation.
+
+@noindent
+The command
+
+@example
+  bibweb --std -m 10 test
+@end example
+
+@noindent
+reads @file{test.aux} and writes the output to the screen (or whatever
+you have STDOUT set to).  The command
+
+@example
+  bibweb --emath=ams.rice.edu bozo
+@end example
+
+@noindent
+reads @file{bozo.aux}, writes to @file{bozo.bib}, and uses
+@url{ams.rice.edu} for the MathSciNet search, as do the commands
+
+@example
+  bibweb --emath=rice bozo
+  bibweb -e rice bozo
+  bibweb bozo -e rice
+@end example
+
+@noindent
+The command
+
+@example
+  bibweb --emath=quack bozo
+@end example
+
+@noindent
+uses @samp{quack} for the MathSciNet search.  In this case, bibweb will
+give a warning (since @samp{quack} is not one of the recognized MathSciNet
+sites), and will produce no usable results (it will be fast, though).
+
+If you run the command
+
+@example
+  bibweb -m 23 -c 'serre'
+@end example
+
+@noindent
+then bibweb will tell you that it is rounding 23 up to 50, and then it
+will look for all articles with @samp{serre} as the author.  In this
+case, it will tell you that there were more than 50 matches found.  I
+suppose if you typed
+
+@example
+  bibweb -m 1000 -c 'serre'
+@end example
+
+@noindent
+then you would get all of Serre's papers listed on your screen.  This
+might take a while.  You could instead run
+
+@example
+  bibweb -m 1000 -c 'serre' -o serre.bib
+@end example
+
+@noindent
+and then the output would be stored in the file @file{serre.bib}.
+
+
+
+
+@comment ---------------------------------------------------------
+
+@node Installation,  , How to, top
+@chapter Installation
+
+This is complicated: put the file @file{bibweb} in your path and make
+sure it's executable.
+
+That's it.
+
+Actually, bibweb seems to require at least version 5.003 of perl, so if
+you have an older version, you may have to upgrade.
+
+And of course, to use bibweb at all, you need to have a subscription to
+MathSciNet.
+
+@comment @node    Concept Index,    ,  Previous Node, Top
+@comment @unnumbered Concept Index
+
+@comment @printindex cp
+
+@comment 
+@contents
+@bye

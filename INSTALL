@@ -1,0 +1,30 @@
+
+These instructions may be a bit out of date.  You should really read
+the documentation in bibweb.dvi or bibweb.info or bibweb.texi or
+bibweb.html (same documentation, different formats).
+
+-------------------
+
+Before you even think about installing bibweb, you need to make sure
+that you can use MathSciNet from your machine.  If not, you're out of
+luck.
+
+To install bibweb:
+
+Put bibweb somewhere in your path.  For instance, you might put
+it in $HOME/bin, as long as that is in your path (and if it isn't,
+look at your .cshrc (or equivalent) file).  Make sure its permissions
+are set to "executable" (i.e., do 'chmod ugo+x bibweb').  Also find
+out where perl lives on your computer, and put its path on the first
+line of bibweb.  On my machine, for instance, I might use
+
+  #!/usr/local/bin/perl
+
+instead of '#!/usr/bin/perl'.
+
+I think bibweb requires at least version 5.003 of perl.
+
+----------------
+
+John H. Palmieri
+palmieri@math.washington.edu

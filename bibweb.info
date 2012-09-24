@@ -1,0 +1,550 @@
+This is bibweb.info, produced by makeinfo version 4.2 from bibweb.texi.
+
+   This is edition 0.50, November 2003, of the `Bibweb Manual'.
+Copyright (C) 1997, 1998, 1999, 2000, 2003 John H. Palmieri
+
+
+File: bibweb.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
+
+Bibweb
+******
+
+   Bibweb is a perl script written by John Palmieri (in consultation
+with Bill Dwyer).
+
+   This is version 0.50, November 2003, of the Bibweb manual.  Bug
+reports and suggestions for new features should go to
+`palmieri@math.washington.edu'.
+
+   This is the first version of this manual; it is done (except for the
+indices).
+
+* Menu:
+
+* Introduction::                Overview, quick instructions
+* How to::                      More detailed instructions
+* Installation::                How to install
+
+
+How to
+
+* LaTeX file::               What your LaTeX file should look like
+* Invoking bibweb::             What bibweb does
+
+LaTeX file
+
+* Bibliography command::        What the \bibliography command should look like
+* Citations::                   Formats for citations
+
+Invoking bibweb
+
+* Basic operation::             Quick instructions
+* Options::                     Options for running bibweb
+
+
+File: bibweb.info,  Node: Introduction,  Next: How to,  Prev: Top,  Up: Top
+
+Introduction
+************
+
+   Bibweb is a utility for automatically retrieving bibliographical
+information from the American Mathematical Society's MathSciNet search
+engine (available at <http://www.ams.org/mathscinet>).  (In particular,
+in order to use bibweb, you must have access to MathSciNet, which means
+that you or your institution has at some point shelled out some
+quantity of money to the AMS.  Anyway...)
+
+   If you're too lazy to go to the library or use a web browser to find
+out bibliographical information for that ground-breaking paper you're
+writing, then bibweb is the program for you.  It is intended for use
+with BibTeX (which means with LaTeX), and you have to write citations
+in a particular format, but that's about all there is to it.
+
+   Briefly: once you've installed bibweb, if you are editing a file
+called `bozo.tex', then you need to insert the following line:
+
+       \bibliography{bozo}
+
+If you are also using the BibTeX file `junk.bib', then you should use
+the following line:
+
+       \bibliography{junk,bozo}
+
+When you want to cite a paper whose bibliographical information you are
+lacking, say "Periodic phenomena in the Adams-Novikov spectral
+sequence" by H. R. Miller, D. C. Ravenel, and W. S. Wilson, then you
+give LaTeX the command
+
+       \cite{miller-ravenel-wilson-periodic}
+
+or
+
+       \cite{miller-ravenel-wilson-novikov}
+
+or
+
+       \cite{miller-ravenel-wilson}
+
+or
+
+       \cite{miller-ravenel;adams-spectral}
+
+When you run this through LaTeX, it won't find the citation (by
+assumption); BibTeX won't find a citation either.  When you run bibweb,
+though, by typing
+
+       bibweb bozo
+
+at the shell prompt, then it takes your citation and queries
+MathSciNet.  If it finds a match, it writes the bibliographic
+information, in BibTeX format, to the file `bozo.bib'.
+
+   Bibweb also lets you search for just a single citation, it lets you
+specify the names of the input (TeX) and output (BibTeX) files
+separately, and has other options.  *Note Options::, for details.
+
+
+File: bibweb.info,  Node: How to,  Next: Installation,  Prev: Introduction,  Up: Top
+
+How to
+******
+
+   In this section, we give detailed instructions for how to use bibweb.
+
+* Menu:
+
+* LaTeX file::               What your LaTeX file should look like
+* Invoking bibweb::             What bibweb does
+
+
+File: bibweb.info,  Node: LaTeX file,  Next: Invoking bibweb,  Prev: How to,  Up: How to
+
+LaTeX file
+==========
+
+   In this section, we describe how to write your LaTeX file so that it
+will produce output suitable for bibweb.
+
+* Menu:
+
+* Bibliography command::        What the \bibliography command should look like
+* Citations::                   Formats for citations
+
+
+File: bibweb.info,  Node: Bibliography command,  Next: Citations,  Prev: LaTeX file,  Up: LaTeX file
+
+Bibliography command
+--------------------
+
+   You need to decide where you want to put the bibliographic
+information that bibweb will give you; this should be a file ending in
+`.bib'.  Suppose you decide to use a file called `jimbob.bib' (which
+may or may not exist at this point).  Then you need the following line
+in your LaTeX file:
+
+       \bibliography{jimbob}
+
+As indicated above, if you already have some other BibTeX files lying
+around, and you also want to use these (say they're called `manny.bib',
+`moe.bib', and `jack.bib'), then you should instead use the following
+line:
+
+       \bibliography{manny,moe,jack,jimbob}
+
+
+File: bibweb.info,  Node: Citations,  Prev: Bibliography command,  Up: LaTeX file
+
+Citations
+---------
+
+   There are two different formats for citations that bibweb knows how
+to handle, and it handles them in different ways.
+
+   * Simpler format:
+
+            \cite{aaa-bbb-ccc-ddd-year}
+
+     `aaa' gets sent as the author, `bbb', `ccc', and `ddd' get sent as
+     miscellany (they can match anything, including the author, title,
+     journal, reviewer, or the text of the review).  `year' should be
+     of the form `<1995' or `>1995' or `=1995' or `1995', in which case
+     bibweb only searches for papers from the appropriate years.
+     `1995' is treated the same as `=1995'.  It seems that specifying a
+     year or range of years slows things down tremendously, so you
+     might want to avoid this.  Also, I think if `year' is in some
+     other format, it will just get ignored.
+
+     For example, `\cite{devinatz-hopkins-nilpotence}' matches two
+     papers: one is "Nilpotence and stable homotopy theory, I" by
+     Devinatz, Hopkins, and Smith; the other is "Morava's change of
+     rings theorem" by Devinatz, for which "Hopkins" and "nilpotence"
+     are mentioned in the review.
+
+     If you want to avoid the second sort of match, you can use the more
+     involved format.
+
+   * More involved format:
+
+            \cite{a1-a2-...-ak;t1-t2-...-tm;j1-j2-...jn;year}
+
+     `year' should be just like field `year' in the simpler format, but
+     it slows things down, so I would avoid it.  `a1', ..., `ak' are
+     treated as authors, `t1', ..., `tm' are treated as words in the
+     title, `j1', ..., `jn' are treated as words in the journal name.
+     You don't have to include all of the fields.
+
+     For example, `\cite{devinatz-hopkins;nilpotence}' matches only the
+     paper "Nilpotence and stable homotopy theory, I" by Devinatz,
+     Hopkins, and Smith.  `\cite{miller-wilkerson;vanishing-steenrod}'
+     matches only "Vanishing lines for modules over the Steenrod
+     algebra" by Miller and Wilkerson, as does
+     `\cite{miller-wilkerson;vanishing-steenrod;;<1985}', as does
+     `\cite{miller-wilkerson;vanishing-steenrod;pure;<1985}' (the paper
+     appeared in the `Journal of Pure and Applied Algebra').
+
+   * Using wildcards:
+
+     You can use `*' as a wildcard; for instance,
+     `\cite{adams;hopf-invar*-one}' would return the two papers by
+     Adams called "On the non-existence of elements of Hopf invariant
+     one".
+
+     When using MathSciNet by hand, if you want to search for papers by
+     Mike Hopkins, you could set the author field equal to `hopkins,
+     m*'.  On the other hand, BibTeX treats commas as separators: if
+     you give BibTeX the command `\cite{hopkins,m*;global}', BibTeX will
+     treat `hopkins' as one source and `m*;global' as another.  So to
+     get bibweb to do the right thing, you should use a period instead
+     of a comma: use the command
+
+            \cite{hopkins.m*;global}
+
+     Bibweb will translate the `.' to a `,' before sending the query to
+     MathSciNet, so this citation would produce
+
+          %% Math Reviews number: 89g:55022
+          @incollection {hopkins.m*;global,
+              AUTHOR = {Hopkins, Michael J.},
+               TITLE = {Global methods in homotopy theory},
+           BOOKTITLE = {Homotopy theory (Durham, 1985)},
+               PAGES = {73--96},
+           PUBLISHER = {Cambridge Univ. Press},
+             ADDRESS = {Cambridge},
+                YEAR = {1987},
+             MRCLASS = {55Q45 (55P42 55P60 55Q10)},
+            MRNUMBER = {89g:55022},
+          MRREVIEWER = {Douglas C. Ravenel},
+          }
+
+
+
+File: bibweb.info,  Node: Invoking bibweb,  Prev: LaTeX file,  Up: How to
+
+Invoking bibweb
+===============
+
+* Menu:
+
+* Basic operation::             Quick instructions
+* Options::                     Options for running bibweb
+
+
+File: bibweb.info,  Node: Basic operation,  Next: Options,  Prev: Invoking bibweb,  Up: Invoking bibweb
+
+Basic operation
+---------------
+
+   In this section, we give the basic instructions for running bibweb,
+as well as a brief description of what bibweb does.
+
+       bibweb FILE
+
+will run bibweb on FILE.  For example, to run bibweb on the file
+`elvis', you type
+
+       bibweb elvis
+
+Then bibweb will run BibTeX on `elvis' and read through the list of
+missing citations.  For each such citation, it searches MathSciNet, and
+writes its results to the file `elvis.bib'.  Once it has done this, it
+runs BibTeX again, to make use of any new citations.
+
+   If bibweb can't find the file `elvis.aux' (which it wants to pass to
+BibTeX), it prints an error message and stops.  If it can't write to
+`elvis.bib', it should also print an error message and stop.
+
+   By "searches MathSciNet", I mean that it fires up a web browser that
+goes to the MathSciNet site, gives it the appropriate query, gets the
+response, and then quits.  In recent versions of bibweb -- versions
+0.50 and later -- it uses a web browser incorporated into perl.  (Older
+versions used a program like `lynx' or `wget' for web browsing.)
+
+   By "its results", I mean the following:
+
+   * If bibweb finds exactly one entry matching your citation, it puts
+     it in `elvis.bib' with the key you chose.  For instance, if you
+     have
+
+            \cite{kan-miller-splitting-spaces}
+
+     then bibweb puts something like the following in `elvis.bib':
+
+          %%   citation 'kan-miller-splitting-spaces'
+          %% Math Reviews number: 57 #7582
+          @article {kan-miller-splitting-spaces,
+              AUTHOR = {Kan, Daniel M. and Miller, Edward Y.},
+               TITLE = {Splitting spaces with finite group actions},
+             JOURNAL = {Topology},
+              VOLUME = {16},
+                YEAR = {1977},
+              NUMBER = {4},
+               PAGES = {403--407},
+             MRCLASS = {55C35},
+            MRNUMBER = {57 \#7582},
+          MRREVIEWER = {J. P. May},
+          }
+
+   * If it finds several matches (at most 5), it writes them all to
+     `elvis.bib', but leaves the original citation undefined.  (The new
+     ones have citations given by their Math Reviews numbers.)  So at
+     this point, you have to edit `elvis.bib' to change the keys of the
+     papers you're interested in, or you have to change your \cite
+     command to match what was written into `elvis.bib'.
+
+     For example, if you have
+
+            \cite{serre;faisceaux}
+
+     then there are two matches (or maybe there are three, now), which
+     get entered into `elvis.bib' as
+
+          %%   citation 'serre;faisceaux'
+          %% Math Reviews number: 35 #3088
+          @article {MR35:3088,
+              AUTHOR = {Serre, Jean-Pierre},
+               TITLE = {Prolongement de faisceaux analytiques coh\'erents},
+             JOURNAL = {Ann. Inst. Fourier (Grenoble)},
+              VOLUME = {16},
+                YEAR = {1966},
+              NUMBER = {fasc. 1},
+               PAGES = {363--374},
+             MRCLASS = {32.50 (32.27)},
+            MRNUMBER = {35 \#3088},
+          MRREVIEWER = {B. Shiffman},
+          }
+          %% Math Reviews number: 16,953c
+          @article {MR16:953c,
+              AUTHOR = {Serre, Jean-Pierre},
+               TITLE = {Faisceaux alg\'ebriques coh\'erents},
+             JOURNAL = {Ann. of Math. (2)},
+              VOLUME = {61},
+                YEAR = {1955},
+               PAGES = {197--278},
+             MRCLASS = {14.0X},
+            MRNUMBER = {16,953c},
+          MRREVIEWER = {C. Chevalley},
+          }
+
+   * If there are more than 5 matches, it tells you that, and doesn't
+     add any new entries to `elvis.bib'.  For example, if you have
+
+            \cite{serre}
+
+     then bibweb adds the following to `elvis.bib':
+
+          %%   citation 'serre'
+          %% More than 5 matches found.
+
+     You can change the number `5' to something else by using the `-m'
+     option.  *Note Options::.
+
+   * If it doesn't find any matches, it tells you that, and doesn't add
+     any new entries to `elvis.bib'.  For example, if you have
+
+            \cite{serre-kan}
+
+     then bibweb adds the following to `elvis.bib':
+
+          %%   citation 'serre-kan'
+          %% No matches found.
+
+   * Occasionally, bibweb will say it only finds one match, but it will
+     add several things to `elvis.bib'.  This happens when there are
+     several papers whose reviews are all together on MathSciNet (see
+     `\cite{dwyer-kan;obstruction-theory-diagrams}', for example).  In
+     these cases, bibweb ought to do a good job of assigning your chosen
+     bibliographical key to the correct entry, but you might want to
+     double-check.
+
+
+   Finally, note that if you give the citation
+
+       \cite{serre}
+
+and run bibweb, then run bibweb again, it will not query MathSciNet
+again; instead it will tell you something like "You've searched for
+`serre' before".
+
+
+File: bibweb.info,  Node: Options,  Prev: Basic operation,  Up: Invoking bibweb
+
+Options
+-------
+
+   bibweb can be run with several different options.
+
+`-i FILE'
+`--input=FILE'
+     Run BibTeX on FILE.
+
+`-o FILE'
+`--output=FILE'
+     Write output to FILE (after appending `.bib' to FILE, if
+     necessary).
+
+`--std'
+     Write output to STDOUT (the screen, ordinarily).
+
+`-c CITATION'
+`--cite=CITATION'
+     Look up only CITATION.  In this case, the output is written to the
+     screen, unless you also use the `-o' option.
+
+`-m NUM'
+`--max=NUM'
+     Return at most NUM matches to each citation.  Actually, NUM is
+     rounded up according to the options available at MathSciNet: NUM
+     will be rounded up to one of: 5, 10, 20, 50, 100, 1000.
+
+`-e SITE'
+`--emath=SITE'
+     Search MathSciNet at the web site SITE.  The default value is read
+     from the environment variable MATHSCINET_SITE; if this variable
+     hasn't been set, the default is `www.ams.org'.  Some other good
+     choices are `ams.rice.edu', `ams.mathematik.uni-bielefeld.de',
+     `ams.mpim-bonn.mpg.de', `ams.u-strasbg.fr', and `ams.impa.br'--see
+     the MathSciNet homepage for more information.  If you choose a
+     value for SITE that's not from this list, bibweb prints a warning,
+     but goes ahead and tries to use it anyway.  You can use a bit of
+     shorthand for SITE: `ams' stands for `www.ams.org'; `rice' stands
+     for `ams.rice.edu'; `bielefeld' stands for
+     `ams.mathematik.uni-bielefeld.de'; `bonn' stands for
+     `ams.mpim-bonn.mpg.de'; `strasbg' stands for `ams.u-strasbg.fr';
+     and `impa' stands for `ams.impa.br'.
+
+`-sep CHAR'
+     Use CHAR to delimit fields in long citation format, instead of
+     semicolon (;)
+
+`-lax'
+     Use `%' to comment lines in BibTeX.  The default behavior is to
+     use `@comment' as the comment character - this is officially
+     supported by BibTeX, while `%' is not (although it seems to work).
+
+`-b'
+`--bibtex'
+     Produce output in bibtex format (the default).
+
+`-d'
+`--dvi'
+     Produce output in dvi format.
+
+`-p'
+`--postscript'
+     Produce output in postscript format.
+
+`-pdf'
+     Produce output in pdf format.
+
+`-t'
+`--text'
+     Produce output in text format.
+
+`-h'
+`--help'
+     Print a short help message, and then quit.
+
+   For example, any of the following commands
+
+       bibweb -i test -o a -m 10
+       bibweb test -o a -m 10
+       bibweb -o a -m 10 test
+       bibweb --output=a --max=10 test
+
+has bibweb read the file `text.aux' and write output to `a.bib',
+returning at most 10 matches for each citation.
+
+The command
+
+       bibweb --std -m 10 test
+
+reads `test.aux' and writes the output to the screen (or whatever you
+have STDOUT set to).  The command
+
+       bibweb --emath=ams.rice.edu bozo
+
+reads `bozo.aux', writes to `bozo.bib', and uses <ams.rice.edu> for the
+MathSciNet search, as do the commands
+
+       bibweb --emath=rice bozo
+       bibweb -e rice bozo
+       bibweb bozo -e rice
+
+The command
+
+       bibweb --emath=quack bozo
+
+uses `quack' for the MathSciNet search.  In this case, bibweb will give
+a warning (since `quack' is not one of the recognized MathSciNet
+sites), and will produce no usable results (it will be fast, though).
+
+   If you run the command
+
+       bibweb -m 23 -c 'serre'
+
+then bibweb will tell you that it is rounding 23 up to 50, and then it
+will look for all articles with `serre' as the author.  In this case,
+it will tell you that there were more than 50 matches found.  I suppose
+if you typed
+
+       bibweb -m 1000 -c 'serre'
+
+then you would get all of Serre's papers listed on your screen.  This
+might take a while.  You could instead run
+
+       bibweb -m 1000 -c 'serre' -o serre.bib
+
+and then the output would be stored in the file `serre.bib'.
+
+
+File: bibweb.info,  Node: Installation,  Prev: How to,  Up: Top
+
+Installation
+************
+
+   This is complicated: put the file `bibweb' in your path and make
+sure it's executable.
+
+   That's it.
+
+   Actually, bibweb seems to require at least version 5.003 of perl, so
+if you have an older version, you may have to upgrade.
+
+   And of course, to use bibweb at all, you need to have a subscription
+to MathSciNet.
+
+
+
+Tag Table:
+Node: Top198
+Node: Introduction1196
+Node: How to3287
+Node: LaTeX file3590
+Node: Bibliography command3963
+Node: Citations4698
+Node: Invoking bibweb8322
+Node: Basic operation8552
+Node: Options13537
+Node: Installation17296
+
+End Tag Table

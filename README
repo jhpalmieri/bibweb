@@ -1,0 +1,43 @@
+
+                          BIBWEB
+
+bibweb is a utility for automatically retrieving bibliographical
+information from the American Mathematical Society's MathSciNet
+program.  John Palmieri ("engineer") wrote bibweb, and Bill Dwyer
+("idea man") helped to design it.
+
+If you're too lazy to go to the library or use a web browser to find
+out bibliographical information for that ground-breaking paper you're
+writing, you can let bibweb do the work for you.  You have to use
+bibtex (which means you have to use latex, I think), and you have to
+write citations in a particular format, but that's about it.
+
+See the files bibweb.dvi, bibweb.html, bibweb.info, bibweb.texi for
+documentation (same documentation, different formats).
+
+See the file 'INSTALL' for old installation instructions.
+
+See the file 'HOW_TO' for old directions on the use of bibweb.
+
+This program is free software, distributed under the GNU General
+Public License; see the file 'COPYING' for more information.
+
+Here are the files in the distribution: 
+
+COPYING     GNU General Public License   
+ChangeLog   list of changes made to bibweb (not user-friendly)
+HOW_TO      how to use
+INSTALL     installation instructions
+README      this file
+bibweb      the actual perl script
+bibweb.dvi  documentation, in dvi format
+bibweb.html documentation, in html format
+bibweb.info documentation, in info format
+bibweb.texi documentation, in texinfo format
+test.tex    test file: run 'latex test', then 'bibweb test' and see
+            what happens 
+
+----------------
+
+John H. Palmieri
+palmieri@math.washington.edu

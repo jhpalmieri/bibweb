@@ -1,0 +1,461 @@
+#!/usr/bin/perl
+
+####################################################################
+#
+# File: bibweb
+# Author: John H. Palmieri <palmieri@math.washington.edu>
+#         URL: http://www.math.washington.edu/~palmieri/Bibweb/
+# Version: 0.50 of Tue Nov 25 13:34:11 PST 2003
+# Description: retrieve bibliographical information from MathSciNet
+#              automatically
+# Copyright (c) 1997, 1998, 1999, 2000, 2001, 2002, 2003 John H. Palmieri
+# License: distributed under GNU General Public License -- see below.
+#
+####################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# (see file COPYING) along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA  02111-1307, USA.
+#
+####################################################################
+#
+# Command line options:
+#    FILE        use FILE.aux as input, FILE.bib as output
+#    -i FILE     specify FILE as input (aux) file.
+#    -o FILE     specify FILE as output (bib) file.  If FILE ends in
+#                 ".bib", write to FILE; otherwise, write to FILE.bib
+#    -c REF      looks up REF, rather than using an auxfile for input
+
+#    -b          get output in bibtex format (default)
+#    -d          get output in dvi format (written to MR#.dvi, where
+#                 'MR#' is the Math Reviews number of the reference)
+#    -p          get output in postscript format (written to MR#.ps)
+#    -pdf        get output in pdf format (written to MR#.pdf)
+#    -t          get output in text format (written to MR#.txt)
+
+#    -m NUM      return at most NUM entries (where NUM is rounded up
+#                 to 5, 10, 20, 50, 100, 1000)
+#    -e WEB_SITE use WEB_SITE for MathSciNet search
+#    -std        write output to STDOUT (the screen, ordinarily)
+#    -sep CHAR   use CHAR to delimit field in long citation format,
+#                instead of semicolon (;)
+#    -lax        use % to comment lines in bibtex
+#    -h          print brief help message
+#
+# If you use only one of the -i and -o options, bibweb makes a guess
+# as to what the other file should be.
+####################################################################
+
+use LWP::UserAgent;
+use HTTP::Request::Common;
+
+$bibtex = 'bibtex';
+$thisprog = 'bibweb';
+$version = '0.50';
+# good choices for e_math: 'www.ams.org', 'ams.rice.edu',
+#   'ams.mathematik.uni-bielefeld.de', 'ams.mpim-bonn.mpg.de',
+#   'ams.u-strasbg.fr', 'ams.impa.br'
+$e_math = $ENV{MATHSCINET_SITE};
+unless ($e_math) {$e_math = 'www.ams.org'}
+$use_stdout = 0;
+$debug = 0;
+$lax_comments = 0;
+$max_matches = 5;
+$usage = <<EOT;
+This is $thisprog, version $version.
+To run bibtex on FILE, and then scan MathSciNet for missing
+  bibliographical information: $0 [options] FILE
+  options can be:
+    -i FILE     use \'FILE\' as input (aux) file
+    -o FILE     use \'FILE\' as output (bib) file
+    -c REF      looks up single citation \'REF\', instead of using
+                 an auxfile for input
+    -b          get output in bibtex format (default)
+    -d          get output in dvi format (written to MR\#.dvi, where
+                 \'MR\#\' is the Math Reviews number of the reference)
+    -p          get output in postscript format (written to MR\#.ps)
+    -pdf        get output in pdf format (written to MR\#.pdf)
+    -t          get output in text format (written to MR\#.txt)
+    -m NUM      return at most NUM entries (rounded up)
+    -e WEB_SITE  use WEB_SITE for MathSciNet search
+    -std        write output to STDOUT (the screen, ordinarily)
+    -sep CHAR   use CHAR to delimit fields in long citation format,
+                instead of semicolon (;)
+    -lax        use % to comment lines in bibtex
+    -h          print this help message
+EOT
+
+# read command line arguments
+use Getopt::Long;
+GetOptions("input|i=s" => \$auxfile,
+	   "output|o=s" => \$bibfile,
+	   "stdout|std|s" => \$use_stdout,
+	   "cite|c=s" => \$only_cite,
+	   "bibtex|bib|b" => \$use_bibtex,
+	   "dvi|d" => \$use_dvi,
+	   "postscript|ps|p" => \$use_postscript,
+	   "pdf" => \$use_pdf,
+	   "text|txt|t" => \$use_text,
+	   "max|m=i" => \$max_matches,
+	   "emath|e=s" => \$e_math,
+	   "separator|sep=s" => \$new_separator,
+	   "lax" => \$lax_comments,
+	   "debug|D" => \$debug,
+	   "help|h" => \$help) or
+    die "$usage\n";
+if ($help) { die "$usage\n" };
+
+if ($e_math eq 'ams') {$e_math = 'www.ams.org'}
+if ($e_math eq 'rice') {$e_math = 'ams.rice.edu'}
+if ($e_math eq 'bielefeld') {$e_math = 'ams.mathematik.uni-bielefeld.de'}
+if ($e_math eq 'bonn') {$e_math = 'ams.mpim-bonn.mpg.de'}
+if ($e_math eq 'strasbg') {$e_math = 'ams.u-strasbg.fr'}
+if ($e_math eq 'impa') {$e_math = 'ams.impa.br'}
+
+if ($e_math =~ /
+	^www.ams.org$|
+	^ams.rice.edu$|
+	^ams.mathematik.uni-bielefeld.de$|
+	^ams.mpim-bonn.mpg.de$|
+	^ams.u-strasbg.fr$|
+        ^ams.impa.br$
+	/x) {
+    print "Using \`$e_math\' for the MathSciNet search.\n"
+    }
+    else {
+	print "Warning: Your choice of \`$e_math\' for the MathSciNet site
+is not one of the recommended choices.  Proceeding anyway...\n\n";
+}
+
+if ($e_math eq 'www.ams.org') {$redirect = 'Providence%2C+RI+USA'}
+if ($e_math eq 'ams.rice.edu') {$redirect = 'Houston%2C+TX+USA'}
+if ($e_math eq 'ams.mathematik.uni-bielefeld.de') {
+    $redirect = 'Bielefeld%2C+Germany'}
+if ($e_math eq 'ams.mpim-bonn.mpg.de') {$redirect = 'Bonn%2C+Germany'}
+if ($e_math eq 'ams.u-strasbg.fr') {$redirect = 'Strasbourg%2C+France'}
+if ($e_math eq 'ams.impa.br') {$redirect = 'Rio+de+Janeiro%2C+Brazil'}
+
+unless ($auxfile and $bibfile) {
+    $file = shift(@ARGV);
+    $auxfile = ($auxfile or $file);
+    $bibfile = ($bibfile or "$file.bib");
+}
+
+if ($bibfile and $bibfile !~ m/\.bib$/) {
+    $bibfile = "$bibfile.bib";
+}
+
+if ($only_cite) {
+    $only_cite =~ s(\'\")();
+    @bibtex_output = (1);
+    $use_stdout = 1 if ($bibfile eq "" or $bibfile eq ".bib");
+}
+else {
+    $auxfile =~ s/\.aux$//;
+    if ($auxfile and not $bibfile) { $bibfile = "$auxfile.bib" }
+    unless (-e "$auxfile.aux") {die "Couldn't read $auxfile.aux\n"};
+    unless ($use_stdout) {
+	open(BIBFILE, ">>$bibfile") or die "Couldn't open $bibfile\n";
+	print "Appending output to $bibfile . . . \n\n";
+    }
+    @bibtex_output = `$bibtex $auxfile`;
+}
+
+OUTPUTTYPE: {
+    if ($use_bibtex) {
+	$output_type = 'bibtex';
+	$getitem_return = 'bibtex';
+	last OUTPUTTYPE;
+    };
+    if ($use_dvi) {
+	$output_type = 'dvi';
+	$use_bibtex = 0;
+	$getitem_return = 'dvi';
+	last OUTPUTTYPE;
+    };
+    if ($use_postscript) {
+	$output_type = 'postscript';
+	$use_bibtex = 0;
+	$getitem_return = 'ps';
+	last OUTPUTTYPE;
+    };
+    if ($use_pdf) {
+	$output_type = 'pdf';
+	$use_bibtex = 0;
+	$getitem_return = 'pdf';
+	last OUTPUTTYPE;
+    };
+    if ($use_text) {
+	$output_type = 'text';
+	$use_bibtex = 0;
+	$getitem_return = 'hl';	
+	last OUTPUTTYPE;
+    };
+    $use_bibtex = 1;
+    $output_type = 'bibtex';
+    $getitem_return = 'bibtex';
+}
+
+$semicolon = ";";
+if ($new_separator) { $semicolon = quotemeta ($new_separator) }
+
+if ($lax_comments) {
+    $bibtex_short_comment = '%%';
+    $bsc = $bibtex_short_comment;
+    $bibtex_long_comment = '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%';
+}
+else {
+    $bibtex_short_comment = '@comment  ';
+    $bsc = $bibtex_short_comment;
+    $bibtex_long_comment = $bsc;
+}
+
+foreach $warning (@bibtex_output) {
+    # get citation
+    if ($only_cite) {
+	$citation_orig = $citation = $only_cite;
+	$citation =~ tr/,/./;
+    }
+    elsif ($warning =~ (/^Warning--I didn\'t find a database entry for \"([^\"]*)\"$/)) {
+	$citation_orig = $citation = $1;
+	next if &check_bibfile($citation_orig);
+    }
+    else { next; }
+
+    # split citation into author, etc.
+    $citation =~ s/-and-/-/g;
+    $citation =~ tr/./,/;
+    $author = '';
+    $title = '';
+    $journal = '';
+    $year = '';
+    $dr = 'all';
+    $misc = '';
+    
+    if ($citation =~ m/$semicolon/) {
+	($authors, $titles, $journals, $year) = split(/$semicolon/, $citation);
+	$author = join('+and+', split(/-/, $authors));
+	$title = join('+and+', split(/-/, $titles));
+	$journal = join('+and+', split(/-/, $journals));
+    }
+    else {
+	($author, $subcitation) = split(/-/, $citation, 2);
+	if ($subcitation =~ /([<>=]?\d+)\Z/) {
+	    $subcitation = $`;
+	    $year = $1; }
+	$misc = join('+and+', split(/-/, $subcitation));
+    }
+
+    # parse year entry
+  YEAR: {
+      if ($year eq '') {
+	  $dr = 'all';
+	  last YEAR;
+	  $yr = '';
+      };
+      if ('<' eq substr($year, 0, 1)) {
+	  $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Dlt';
+	  $yr = substr($year, 1);
+	  $yr = "arg3%3D$yr%26";
+	  $dr = 'pubyear';
+	  last YEAR; 
+      };
+      if ('=' eq substr($year, 0, 1)) {
+	  $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Deq';
+	  $yr = substr($year, 1);
+	  $yr = "arg3%3D$yr%26";
+	  $dr = 'pubyear';
+	  last YEAR; 
+      };
+      if ('>' eq substr($year, 0, 1)) {
+	  $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Dgt';
+	  $yr = substr($year, 1);
+	  $yr = "arg3%3D$yr%26";
+	  $dr = 'pubyear';
+	  last YEAR; 
+      };
+      $ord = '%26yearRangeFirst%3D%26yearRangeSecond%3D%26yrop%3Deq';
+      $yr = $year;
+      $dr = 'pubyear';
+  }
+
+    # construct URL
+    $url =
+	"http://$e_math/msnmain?fn=130&form=fullsearch&preferred_language-en&Submit=Start+Search&" .
+	"pg4=AUCN&s4=$author&co4=AND" .
+	"&pg5=TI&s5=$title&co5=AND" .
+	"&pg6=JOUR&s6=$journal&co6=AND" .
+	"&pg7=ALLF&s7=$misc" .
+        "&dr=$dr" .
+	"&yrop=$ord&arg3=$yr" .
+	"&yearRangeFirst=&yearRangeSecond=" .
+	"&pg3=ET&s3=All&l=20&reference_lists=show&redirect=$redirect";
+    unless ($use_stdout) {
+	&bib_print("", "$bibtex_long_comment \n");
+    }
+    &bib_print("working on citation \'$citation_orig\' \n", 
+		"$bsc citation \'$citation_orig\' \n" );
+    $match_info_printed = '';
+
+    if ($debug) {print "debug information: URL is \n$url\n"};
+
+    # get response from MathSciNet
+    my $ua = LWP::UserAgent->new;
+    my $response = $ua->request(GET $url);
+
+    if ($response->is_success) {
+	$line = $response->as_string;
+	# if ($debug) {print "debug information: line is \n$line\n"};
+
+	# get number of matches
+	if (($line =~ (/Number of Matches:.*<\/b> ([0-9]*)/))
+	  or ($line =~ (/Item:.*<strong>([0-9]*)<\/strong>/))) {
+	    # if ($debug) {print "debug information: line is \n$line\n"};
+
+	    $matches = $1;
+	    if ($debug) {print "debug information: matches = $matches\n"};
+
+	    if ($matches > $max_matches) {
+		&bib_print("More than $max_matches matches found " .
+			   "($matches); " .
+			   "please refine your search criteria,\n" .
+			   "or use the -m option. \n\n",
+			   "$bsc More than $max_matches matches found " .
+			   "($matches). \n$bsc\n");
+	    }
+	    elsif ( not $match_info_printed ) {
+		$plural = "es";
+		$match_info_printed = 1;
+		if ($matches == 1) {$plural = ""}
+		&bib_print("$matches match$plural found. \n\n", "" );
+
+		# given match, get MR number, convert to forms for use in URL
+	    while ($line =~ (/<strong>MR([^<]*)<\/strong>\s*<strong>\(([^)]*)\)<\/strong>/g)) {
+		# if ($debug) {print "debug information: line is \n$line\n"};
+
+		# there are now new MR numbers: a unique 7 digit number
+		# assigned to each item in the database.  Assign this to $mr,
+		# and use it to search.  Assign old MR number to $old_mr, and
+		# use it for printing.
+		$mr = $1;
+		$old_mr = $2;
+		&bib_print("Math Reviews number: $old_mr \n", "$bsc Math Reviews number: $old_mr \n");
+		$old_mr =~ tr/ //d;
+		$old_mr =~ tr/_/:/;
+		$old_mr =~ tr/\#/:/;
+		$old_mr =~ tr/,/:/;
+		
+		if ($debug) {print "debug information: old_mr = $old_mr\n"};
+		
+		$new_url = "http://$e_math/mathscinet-getitem?mr=$mr&return=$getitem_return";
+		
+		if ($debug) {print "debug information: new_url = \n$new_url\n"};
+		
+		# call wget again, process its output
+		$at_sign_found = 0;
+		
+                my $new_ua = LWP::UserAgent->new;
+
+		if ($output_type eq 'bibtex') {
+		    my $new_response = $new_ua->request(GET $new_url);
+		    
+		    if ($new_response->is_success){
+			$line2 = $new_response->as_string;
+			# if ($debug) {print "debug information: line2 = \n$line2\n"};
+			# look for <PRE> at start, </PRE> at end of bibtex
+			
+			$line2 =~ (/<PRE>\s([^<]*)\s<\/PRE>/);
+			$line2 = $1;
+			
+			if ($matches == 1) {
+			    $line2 =~ s/MR$old_mr/$citation_orig/;
+			}
+			
+			&bib_print("", "$line2" );
+		    }
+		}
+		# dvi, ps, pdf, txt output
+		else {
+		    $filename = "MR$mr.$getitem_return";
+		    open (FILE, ">$filename") or die "Can't open `$filename'\n";
+		    $response = $new_ua->mirror($new_url , $filename);
+		    if ($response->is_success) {
+			print "  Output written to $filename\n";
+		    }
+		    else {
+			print "  Error writing to $filename\n";
+		    }
+		    close (FILE);
+		}
+	    }		    
+	    }
+	}
+	
+	# warning messages...
+	elsif ($line =~ (/Sorry, no matches found/)) {
+	    &bib_print("No matches found; please revise your search criteria.  \n\n",
+			"$bsc No matches found. \n$bsc\n");
+	}
+	elsif ($line =~ (/Sorry, /)) {
+	    &bib_print("There was an unknown error.  " .
+		       "Please check for typos, or just try again.\n\n",
+		       "$bsc Syntax or server error. \n$bsc\n");
+	}
+    }
+}
+	
+close(BIBFILE);
+
+# run bibtex again, to make use of new keys
+exec "$bibtex $auxfile" unless ($only_cite);
+
+########## simple subroutines
+
+# scan BIBFILE for citation, to see if you've looked for it before
+sub check_bibfile {
+    local($answer) = 0;
+    local($cite) = $_[0];
+    if ($] >= 5) { $cite = "\Q$_[0]\E"; }
+    if (-e $bibfile) {
+	open(BIBFILE, "$bibfile");
+	while (<BIBFILE>) {
+	    if (/$bsc\s*citation\s*\'$cite\'/) {
+		$answer = 1;
+		last;
+	    }
+	}
+	close(BIBFILE);
+	if ($answer) { print "You've searched for $_[0] before.\n\n" };
+	$answer;
+    }
+    else {
+	0;
+    }
+}
+
+# print to screen and to BIBFILE, unless writing to STDOUT
+sub bib_print {
+    local($line1, $line2) = ($_[0], $_[1]);
+    if (not $use_bibtex) {
+	print $line1;
+    }
+    elsif ($use_stdout) {
+	print $line2;
+    }
+    else {
+	open(BIBFILE, ">>$bibfile") or die "Couldn't open $bibfile\n";
+	print $line1;
+	print BIBFILE "$line2";
+    }
+}

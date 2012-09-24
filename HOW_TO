@@ -1,0 +1,273 @@
+
+These instructions may be a bit out of date.  You should really read
+the documentation in bibweb.dvi or bibweb.info or bibweb.texi or
+bibweb.html (same documentation, different formats).
+
+-------------------
+
+How to use bibweb:
+
+Once you've installed bibweb, here's what you do:
+
+I will assume you're working with a file called 'gorilla.tex'.  In
+order to use bibtex at all, you need to have two lines in the file,
+something like:
+
+  \bibliography{bozo}
+  \bibliographystyle{alpha}
+
+When you run bibtex on this, it looks for a file called 'bozo.bib',
+and loads references from that.
+
+1. Change the first of the above lines to:
+
+  \bibliography{bozo,gorilla}
+
+This way, bibtex will also look for a file called 'gorilla.bib', which
+bibweb will produce.
+
+2. If you want to cite a paper not in your bozo.bib file, say, Adams'
+paper on Hopf invariant one, you just cite it:
+
+  \cite{adams-hopf-invariant-one}
+
+3. Then run latex on the paper, as normal.  After this, rather than
+running bibtex, run bibweb; it will run bibtex, and for every citation
+it can't find, it will search on MathSciNet.  It will write the
+resulting bibtex entries to the file 'gorilla.bib'.  Then it runs
+bibtex again, to scan these new entries.  (So then you have to run
+latex a few more times, as usual.)
+
+To run bibweb, you just type:
+
+  bibweb gorilla
+
+Since MathSciNet is sort of slow, I would recommend using this in
+conjunction with X windows or some similar system: edit your tex file
+using Emacs (of course), and then in a separate window run bibweb when
+you need to.  Then you can let it go on its merry way, while you keep
+typing.  For you Ultra-TeX and AUC-TeX users, it should be pretty easy
+to set things up so you can run bibweb from with AUC-TeX by hitting
+C-c C-c; I'll let you work out the details.
+
+4. Other options for running bibweb:
+bibweb [options] FILE
+  where options can be:
+    -i FILE     use \'FILE\' as input (aux) file
+    -o FILE     use \'FILE\' as output (bib) file
+    -c REF      looks up single citation \'REF\', instead of using
+                 an auxfile for input
+    -b          get output in bibtex format (default)
+    -d          get output in dvi format (written to MR\#.dvi, where
+                 \'MR\#\' is the Math Reviews number of the reference)
+    -p          get output in postscript format (written to MR\#.ps)
+    -pdf        get output in pdf format (written to MR\#.pdf)
+    -t          get output in text format (written to MR\#.txt)
+    -m NUM      return at most NUM entries (rounded up)
+    -e WEB_SITE  use WEB_SITE for MathSciNet search
+    -std        write output to STDOUT (the screen, ordinarily)
+    -sep CHAR   use CHAR to delimit fields in long citation format,
+                instead of semicolon (;)
+    -lax        use % to comment lines in bibtex
+    -h          print brief help message
+
+The -e option: there are various places that let you search the
+MathSciNet database:
+   www.ams.org (the default)
+   ams.rice.edu
+   ams.mathematik.uni-bielefeld.de
+   ams.mpim-bonn.mpg.de
+   ams.u-strasbg.fr
+   ams.impa.br
+So
+  bibweb -e ams.rice.edu  blah blah blah
+uses the site at Rice instead of the default.  If you use the -e
+option, no error checking is done: if you say
+  bibweb -e bozo.edu  blah blah blah
+then bibweb will tell you that bozo.edu is not on its list of e-math
+sites, but it will go ahead and search there anyway (returning
+nothing, and doing it remarkably quickly).  This way, if some new
+e-math site appears and I don't know about it, you can use bibweb to
+search there anyway.
+
+----------------
+
+Notes:
+1(a) If bibweb finds exactly one entry matching your citation, it
+puts it in gorilla.bib with the key you chose.  For instance, if you
+have
+
+  \cite{kan-miller-splitting-spaces}
+
+bibweb puts the following in gorilla.bib:
+
+%% Math Reviews number: 57 #7582 
+@article {kan-miller-splitting-spaces, 
+   AUTHOR = {Kan, Daniel M. and Miller, Edward Y.},
+    TITLE = {Splitting spaces with finite group actions},
+  JOURNAL = {Topology},
+   VOLUME = {16},
+     YEAR = {1977},
+   NUMBER = {4},
+    PAGES = {403--407},
+}
+
+(b) If it finds several matches (at most 5), it writes them all to
+gorilla.bib, but leaves the original citation undefined.  (The new
+ones have citations given by their Math Reviews numbers.)  So at this
+point, you have to edit gorilla.bib to change the keys of the papers
+you're interested in, or you have to change your \cite command to
+match what was written into gorilla.bib.
+
+Example: if you have
+
+  \cite{adams;hopf-invariant-one}
+
+then there are two matches: two papers by Adams called "On the
+nonexistence of elements of Hopf invariant one", one from the Annals,
+and one from Bull. AMS.  These get entered into gorilla.bib as 
+
+%% Math Reviews number: 25 #4530 
+@article {MR25:4530,
+   AUTHOR = {Adams, J. F.},
+    TITLE = {On the non-existence of elements of {H}opf invariant one},
+  JOURNAL = {Ann. of Math. (2)},
+   VOLUME = {72},
+     YEAR = {1960},
+    PAGES = {20--104},
+}
+
+%% Math Reviews number: 20 #3539 
+@article {MR20:3539,
+   AUTHOR = {Adams, J. F.},
+    TITLE = {On the nonexistence of elements of {H}opf invariant one},
+  JOURNAL = {Bull. Amer. Math. Soc.},
+   VOLUME = {64},
+     YEAR = {1958},
+    PAGES = {279--282},
+}
+
+(c) If it finds more than 5 matches, it tells you that, and doesn't
+add any new entries to gorilla.bib.
+
+Example: if you have
+
+  \cite{serre}
+
+then bibweb adds the following to gorilla.bib:
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%   citation 'serre' 
+%% More than 5 matches found. 
+%%
+
+(d) If it doesn't find any matches, it tells you that, and doesn't
+add any new entries to gorilla.bib.
+
+Example: if you have
+
+  \cite{serre-kan}
+
+then bibweb adds the following to gorilla.bib:
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%   citation 'serre-kan' 
+%% No matches found. 
+%%
+
+(e) Occasionally, bibweb will say it only finds one match, but it will
+add several things to gorilla.bib.  This happens when there are
+several papers whose reviews are all together on MathSciNet (see
+\cite{dwyer-kan;obstruction-theory-diagrams}, for example). 
+
+
+
+2. There are two different formats for citations that bibweb knows how
+to handle, and it handles them in different ways.
+
+(a) Simpler format:
+
+  \cite{a-b-c-d-e}
+
+'a' gets sent as the author, 'b', 'c', and 'd' get sent as
+miscellany (they can match anything, including the author, title,
+journal, reviewer, or the text of the review).  'e' should be of the
+form  '<1995' or '>1995' or '=1995' or '1995', in which case bibweb
+only searches for papers from the appropriate years.  '1995' is
+treated the same as '=1995'.  It seems that specifying a year or range
+of years slows things down tremendously, so you might want to avoid
+this.  Also, I think if 'e' is in some other format, it will just get
+ignored.
+
+Example: \cite{devinatz-hopkins-nilpotence} matches two papers: one is
+"Nilpotence and stable homotopy theory, I" by Devinatz, Hopkins, and
+Smith; the other is 'Morava's change of rings theorem" by Devinatz,
+for which "Hopkins" and "nilpotence" are mentioned in the review.
+
+If you want to avoid this sort of thing, you can use the more involved
+format.
+
+(b) More involved format:
+
+  \cite{a1-a2-...-ak;t1-t2-...-tm;j1-j2-...jn;year}
+
+'year' should be just like field 'e' in the simpler format, but it
+slows things down, so I would avoid it.  a1, ..., ak are treated as
+authors, t1, ..., tm are treated as titles, j1, ..., jn are treated as
+journals.  You don't have to include the journal field, for instance,
+or the year field.
+
+Example: \cite{devinatz-hopkins;nilpotence} matches only the paper
+"Nilpotence and stable homotopy theory, I" by Devinatz, Hopkins, and
+Smith.  \cite{miller-wilkerson;vanishing-steenrod} matches "Vanishing
+lines for modules over the Steenrod algebra" by Miller and Wilkerson,
+as does \cite{miller-wilkerson;vanishing-steenrod;;<1985}, as does
+\cite{miller-wilkerson;vanishing-steenrod;pure;<1985} (the paper
+appeared in the Journal of Pure and Applied Algebra).
+
+
+
+3. Using wildcards: You can use '*' as a wildcard; for instance,
+\cite{adams;hopf-invar*-one} would give the same two papers as in Note
+1(b).
+
+When using MathSciNet by hand, if you want to search for papers by
+Mike Hopkins, you could set the author field equal to "hopkins, m*".
+On the other hand, if you give bibtex the command
+\cite{hopkins,m*;global}, bibtex will treat "hopkins" as one source
+and "m*;global" as another.  So to get bibweb to do the right thing,
+you should use the command
+
+  \cite{hopkins.m*;global}
+
+bibweb will translate the . to a , before sending the query to
+MathSciNet, so this citation would produce
+
+@incollection {hopkins.m*;global, 
+   AUTHOR = {Hopkins, Michael J.},
+    TITLE = {Global methods in homotopy theory},
+BOOKTITLE = {Homotopy theory (Durham, 1985)},
+    PAGES = {73--96},
+   SERIES = {London Math. Soc. Lecture Note Ser.},
+   VOLUME = {117},
+PUBLISHER = {Cambridge Univ. Press},
+  ADDRESS = {Cambridge},
+     YEAR = {1987},
+}
+
+4. Examples of other options:
+
+  bibweb -i bozo -o clown
+uses 'bozo.aux' as input file (i.e., it runs 'bibtex bozo'), and writes
+output to 'clown.bib'.
+
+  bibweb -c 'adams;hopf-invariant-one'
+looks for the given reference, and writes its output to the screen.
+
+  bibweb -c 'adams;hopf-invariant-one' -o clown.bib
+looks for the given reference, and appends its output to 'clown.bib'.
+
+----------------
+
+John H. Palmieri
+palmieri@math.washington.edu

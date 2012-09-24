@@ -1,0 +1,228 @@
+2003-11-24  John H Palmieri  <palmieri@math.washington.edu>
+
+	* released version 0.50.
+
+	* bibweb: switch from using wget (etc.) to using perl packages,
+	thus making the program more "self-contained".
+
+	* bibweb: changed bibtex comment string to "@comment"; added
+	bibweb option "-lax".  "bibweb -lax" uses "%" for the comment
+	character.  (% is not an official bibtex comment character,
+	although it does seem to work.)
+
+	* bibweb: added "-debug" option; "bibweb -debug" prints some
+	debugging information (like the URLs being used).
+
+2003-11-19  John H Palmieri  <palmieri@math.washington.edu>
+
+	* released version 0.49.
+	
+	* bibweb: the AMS did something to break bibweb again, and I think
+	I've fixed it.  In particular: there are now two types of MR
+	numbers: the old ones, and new ones which are just 7 digit
+	numbers.  bibweb now uses the old ones for printing and uses the
+	new ones for searching and constructing URLs.  Also, the AMS
+	changed the basic URL for the initial search, and so I've tried to
+	fix the one bibweb uses to compensate.
+	
+2002-11-12  John H Palmieri  <palmieri@math.washington.edu>
+
+	* released version 0.48.
+	
+	* bibweb: changed path to perl executable
+	
+	* bibweb: the AMS did something to break bibweb again, and I think
+	I've fixed it.
+
+2002-03-21  John H Palmieri  <palmieri@math.washington.edu>
+
+	* released version 0.47.
+	
+	* bibweb: added option '-sep CHAR': use CHAR instead of semicolon
+	to separate fields in long citation format.
+
+2000-11-09  John H. Palmieri  <palmieri@math.washington.edu>
+	
+	* released version 0.46.
+
+	* bibweb: the AMS did something to break bibweb again, and I think
+	I've fixed it.
+
+2000-11-09 Laurent Bartholdi <Laurent.Bartholdi@math.unige.ch>, 
+	(modified by John H. Palmieri <palmieri@math.washington.edu>)
+
+	* bibweb: added option '-r': insert the math review in the bibtex output.
+
+2000-02-10  John H. Palmieri  <palmieri@math.washington.edu>
+
+	* bibweb: specifying publication year wasn't working, so I fixed
+	it (by specifying the 'dr' field to be either 'all' or 'pubyear').
+
+1999-09-23  John Palmieri  <palmieri@math.washington.edu>
+
+	* bibweb: released version 0.44.
+
+	* bibweb: changed URLs and stuff so that bibweb works with MathSciNet
+	version 5.0.
+	
+	* bibweb: command line option -pdf retrieves information in pdf format.
+	
+	* bibweb: new address.
+
+1999-03-02  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.43.
+
+	* bibweb: clarified copyright and licensing information.
+
+1998-10-26  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.41.
+
+1998-10-26  Michael Friendly <friendly@hotspur.psych.yorku.ca>
+
+	* bibweb: added option to look for webget if neither lynx nor wget
+	are present.
+
+1998-10-26  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: more modifications related to MathSciNet 4.0.
+
+1998-09-22  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.41.
+
+	* bibweb: changed URLs and stuff so that bibweb works with MathSciNet
+	version 4.0.
+
+1998-05-04  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.40.
+
+	* bibweb: added another paragraph about the GNU GPL.
+
+	* COPYING: added this file to the distribution.
+
+1998-04-21  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.39.
+
+	* bibweb: made comment character a variable, in case some weird
+	version of BibTeX barfs when it sees `%'.
+
+1998-04-15  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.38.
+
+	* bibweb: fixed a bug: $use_bibtex was not being set by default if
+	no other options were chosen.
+	
+	* bibweb: MathSciNet can now handled getitem requests properly
+	with temporary MR numbers.
+
+1998-04-02  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.37.
+
+	* bibweb: I noticed that lynx seems able to return dvi and
+	postscript output just fine, so the -d and -p options now work, as
+	long as lynx is available.
+
+	* bibweb: Since MathSciNet now can return BibTeX information
+	directly using mathscinet-getitem, the URLs are easier once we
+	know the MR number.  So $new_wget_url has been redefined.
+
+1998-01-06  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: released version 0.36.
+
+	* bibweb: New feature: bibweb uses the environment variable
+	MATHSCINET_SITE for its default MathSciNet search site.  If this
+	variable is not defined, then the default is e-math.ams.org.  Of
+	course, you can still specify a different site using the
+	command-line argument -e.
+
+	* bibweb: released version 0.35.
+
+	* bibweb: New feature: if you give the argument '-e rice', it
+	translates that to '-e ams.rice.edu'.  Similarly:
+	'ams' is short-hand for 'e-math.ams.org',
+	'bielefeld' is shorthand for 'ams.mathematik.uni-bielefeld.de',
+	'bonn' is shorthand for 'klymene.mpim-bonn.mpg.de', and
+	'strasbg' is shorthand for 'irmasrv1.u-strasbg.fr'
+
+	* bibweb: AMS changed its format, so bibweb wasn't retrieving the
+	number of matches.
+	
+1998-01-06  John Greenlees <j.greenlees@sheffield.ac.uk>
+
+	* bibweb: changed Bielefeld address.  (Well, maybe not.)
+
+1997-12-05  Ralph Freese  <ralph@math.hawaii.edu>
+
+	* bibweb ('foreach $warning' loop): changed 'last' to 'next'
+
+1997-11-25  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: fixed bug: if using Lynx, and when retrieving item with
+	temporary MR number, nothing was returned.
+
+1997-11-07  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: fixed bug: if --max=NUM option was used with NUM>9, if
+	there were more than 10 matches, only first 9 were returned.
+
+1997-11-05  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: changed version to 0.31.
+
+	* bibweb.texi (etc): fiddled a bit with the installation instructions.
+
+1997-10-28  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: changed version to 0.30, to celebrate the existence of
+	documentation.
+
+	* bibweb.texi: wrote the documentation.
+
+	* bibweb: changed version to 0.29
+
+	* bibweb: added command line option "std"
+
+	* bibweb: automatically use lynx if wget is not found.
+
+1997-10-27  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: changed version to 0.28
+
+	* bibweb: fixed bug in parsing math review number--in the last few
+	versions, even when there was a unique match, the appropriate key
+	would not get assigned to the bibtex entry.
+
+	* bibweb: fixed bug in citation parsing (have to set author, etc,
+	to '' for each citation)
+
+	* bibweb: changed version to 0.27
+
+	* bibweb: little changes
+
+	* bibweb: changed version to 0.26
+
+	* bibweb: fixed one or two bugs with -cite option
+
+1997-10-26  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: changed version to 0.25
+
+	* bibweb: fix round-up of $max_matches
+
+	* bibweb: use GetOpt to read command line arguments
+
+1997-10-25  John H Palmieri  <palmieri@member.ams.org>
+
+	* bibweb: changed version to 0.24
+
+	* bibweb: changed some stylist choices, added some comments
+
+	* bibweb: changed /bin/perl to /usr/bin/perl
+
