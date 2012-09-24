@@ -1,14 +1,14 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 ####################################################################
 #
 # File: bibweb
 # Author: John H. Palmieri <palmieri@math.washington.edu>
 #         URL: http://www.math.washington.edu/~palmieri/Bibweb/
-# Version: 0.61 of Tue Nov 21 13:47:03 PST 2006
+# Version: 0.62 of Mon Sep 24 11:14:31 PDT 2012
 # Description: retrieve bibliographical information from MathSciNet
 #              automatically
-# Copyright (c) 1997-2006 John H. Palmieri
+# Copyright (c) 1997-2012 John H. Palmieri
 # License: distributed under GNU General Public License -- see below.
 #
 ####################################################################
@@ -54,7 +54,7 @@ use HTTP::Request::Common;
 
 $bibtex = 'bibtex';
 $thisprog = 'bibweb';
-$version = '0.61';
+$version = '0.62';
 # good choices for e_math: 'www.ams.org', 'ams.rice.edu',
 #   'ams.mathematik.uni-bielefeld.de', 'ams.mpim-bonn.mpg.de',
 #   'ams.u-strasbg.fr', 'ams.impa.br'

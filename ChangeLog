@@ -1,3 +1,9 @@
+2012-09-24  John Palmieri  <palmieri@jpalmieri538.math.washington.edu>
+
+	* released version 0.62.
+
+	* bibweb: changed the hash bang to "/usr/bin/env perl"
+
 2006-11-21  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.61.

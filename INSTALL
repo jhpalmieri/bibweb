@@ -14,13 +14,7 @@ To install bibweb:
 Put bibweb somewhere in your path.  For instance, you might put
 it in $HOME/bin, as long as that is in your path (and if it isn't,
 look at your .cshrc (or equivalent) file).  Make sure its permissions
-are set to "executable" (i.e., do 'chmod ugo+x bibweb').  Also find
-out where perl lives on your computer, and put its path on the first
-line of bibweb.  On my machine, for instance, I might use
-
-  #!/usr/local/bin/perl
-
-instead of '#!/usr/bin/perl'.
+are set to "executable" (i.e., do 'chmod ugo+x bibweb').
 
 I think bibweb requires at least version 5.003 of perl.
 
