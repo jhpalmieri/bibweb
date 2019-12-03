@@ -1,3 +1,11 @@
+2019-12-03  John Palmieri  <jpalmier@jpalmieri138.local>
+
+	* released version 0.63
+
+	* bibweb: no output because of perl error "Can't verify SSL peers
+	without knowing which Certificate Authorities to trust". Now
+	fixed.
+
 2012-09-24  John Palmieri  <palmieri@jpalmieri538.math.washington.edu>
 
 	* released version 0.62.
@@ -7,14 +15,14 @@
 2006-11-21  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.61.
-	
+
 	* bibweb: the AMS did something to break bibweb again, and I think
 	I've fixed it.
 
 2003-11-25  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.60.
-	
+
 	* bibweb: found alternative URL to use, which gives bibtex output
 	all at once (instead of doing things in two stages the way I have
 	been) -- this was in a program by Nevin Kapur (now at Cal Tech?)
@@ -43,7 +51,7 @@
 2003-11-19  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.49.
-	
+
 	* bibweb: the AMS did something to break bibweb again, and I think
 	I've fixed it.  In particular: there are now two types of MR
 	numbers: the old ones, and new ones which are just 7 digit
@@ -51,31 +59,31 @@
 	new ones for searching and constructing URLs.  Also, the AMS
 	changed the basic URL for the initial search, and so I've tried to
 	fix the one bibweb uses to compensate.
-	
+
 2002-11-12  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.48.
-	
+
 	* bibweb: changed path to perl executable
-	
+
 	* bibweb: the AMS did something to break bibweb again, and I think
 	I've fixed it.
 
 2002-03-21  John H Palmieri  <palmieri@math.washington.edu>
 
 	* released version 0.47.
-	
+
 	* bibweb: added option '-sep CHAR': use CHAR instead of semicolon
 	to separate fields in long citation format.
 
 2000-11-09  John H. Palmieri  <palmieri@math.washington.edu>
-	
+
 	* released version 0.46.
 
 	* bibweb: the AMS did something to break bibweb again, and I think
 	I've fixed it.
 
-2000-11-09 Laurent Bartholdi <Laurent.Bartholdi@math.unige.ch>, 
+2000-11-09 Laurent Bartholdi <Laurent.Bartholdi@math.unige.ch>,
 	(modified by John H. Palmieri <palmieri@math.washington.edu>)
 
 	* bibweb: added option '-r': insert the math review in the bibtex output.
@@ -91,9 +99,9 @@
 
 	* bibweb: changed URLs and stuff so that bibweb works with MathSciNet
 	version 5.0.
-	
+
 	* bibweb: command line option -pdf retrieves information in pdf format.
-	
+
 	* bibweb: new address.
 
 1999-03-02  John H Palmieri  <palmieri@member.ams.org>
@@ -143,7 +151,7 @@
 
 	* bibweb: fixed a bug: $use_bibtex was not being set by default if
 	no other options were chosen.
-	
+
 	* bibweb: MathSciNet can now handled getitem requests properly
 	with temporary MR numbers.
 
@@ -180,7 +188,7 @@
 
 	* bibweb: AMS changed its format, so bibweb wasn't retrieving the
 	number of matches.
-	
+
 1998-01-06  John Greenlees <j.greenlees@sheffield.ac.uk>
 
 	* bibweb: changed Bielefeld address.  (Well, maybe not.)

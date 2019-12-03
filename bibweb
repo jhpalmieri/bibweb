@@ -5,10 +5,10 @@
 # File: bibweb
 # Author: John H. Palmieri <palmieri@math.washington.edu>
 #         URL: http://www.math.washington.edu/~palmieri/Bibweb/
-# Version: 0.62 of Mon Sep 24 11:14:31 PDT 2012
+# Version: 0.63 of Tue Dec  3 11:18:27 PST 2019
 # Description: retrieve bibliographical information from MathSciNet
 #              automatically
-# Copyright (c) 1997-2012 John H. Palmieri
+# Copyright (c) 1997-2019 John H. Palmieri
 # License: distributed under GNU General Public License -- see below.
 #
 ####################################################################
@@ -52,9 +52,24 @@
 use LWP::UserAgent;
 use HTTP::Request::Common;
 
+# Without the following, I get the error
+#
+# "Can't verify SSL peers without knowing which Certificate Authorities to trust"
+#
+# There are two optons: use Mozilla::CA or set the environment variable
+# PERL_LWP_SSL_VERIFY_HOSTNAME to 0. The former seems safer, so try that first.
+my $mozca = eval
+{
+  require Mozilla::CA;
+  1;
+};
+unless ($mozca) {
+    $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = '0';
+}
+
 $bibtex = 'bibtex';
 $thisprog = 'bibweb';
-$version = '0.62';
+$version = '0.63';
 # good choices for e_math: 'www.ams.org', 'ams.rice.edu',
 #   'ams.mathematik.uni-bielefeld.de', 'ams.mpim-bonn.mpg.de',
 #   'ams.u-strasbg.fr', 'ams.impa.br'
