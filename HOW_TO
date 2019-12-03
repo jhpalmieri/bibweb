@@ -26,10 +26,12 @@ and loads references from that.
 This way, bibtex will also look for a file called 'gorilla.bib', which
 bibweb will produce.
 
+
 2. If you want to cite a paper not in your bozo.bib file, say, Adams'
 paper on Hopf invariant one, you just cite it:
 
   \cite{adams-hopf-invariant-one}
+
 
 3. Then run latex on the paper, as normal.  After this, rather than
 running bibtex, run bibweb; it will run bibtex, and for every citation
@@ -49,6 +51,11 @@ you need to.  Then you can let it go on its merry way, while you keep
 typing.  For you Ultra-TeX and AUC-TeX users, it should be pretty easy
 to set things up so you can run bibweb from with AUC-TeX by hitting
 C-c C-c; I'll let you work out the details.
+
+NOTE: If you run into problems, it is possible for your .aux and/or
+your .bib files to become corrupted, so you could consider deleting
+them (or moving them to a temporary location) and trying bibweb again.
+
 
 4. Other options for running bibweb:
 bibweb [options] FILE
