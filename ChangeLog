@@ -1,5 +1,10 @@
 2019-12-03  John Palmieri  <jpalmier@jpalmieri138.local>
 
+	* released version 0.64
+
+	* bibweb: escape a left brace { to avoid a deprecation warning
+	with some versions of perl.
+
 	* released version 0.63
 
 	* bibweb: no output because of perl error "Can't verify SSL peers

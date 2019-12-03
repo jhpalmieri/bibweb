@@ -5,7 +5,7 @@
 # File: bibweb
 # Author: John H. Palmieri <palmieri@math.washington.edu>
 #         URL: http://www.math.washington.edu/~palmieri/Bibweb/
-# Version: 0.63 of Tue Dec  3 11:18:27 PST 2019
+# Version: 0.64 of Tue Dec  3 13:49:21 PST 2019
 # Description: retrieve bibliographical information from MathSciNet
 #              automatically
 # Copyright (c) 1997-2019 John H. Palmieri
@@ -69,7 +69,7 @@ unless ($mozca) {
 
 $bibtex = 'bibtex';
 $thisprog = 'bibweb';
-$version = '0.63';
+$version = '0.64';
 # good choices for e_math: 'www.ams.org', 'ams.rice.edu',
 #   'ams.mathematik.uni-bielefeld.de', 'ams.mpim-bonn.mpg.de',
 #   'ams.u-strasbg.fr', 'ams.impa.br'
@@ -280,7 +280,7 @@ foreach $warning (@bibtex_output) {
 		
 		# if ($debug) {print "NOW line is **$line**"};
 		
-		$line =~ /MRNUMBER = {([^}]*)}/;
+		$line =~ /MRNUMBER = \{([^}]*)}/;
 		$mr = $1;
 		&bib_print("", "$bsc Math Reviews number: $mr \n");
 		$line =~ s/(MR[^,]*)/$citation_orig/;
@@ -290,7 +290,7 @@ foreach $warning (@bibtex_output) {
 		foreach $line2 (@lines) {
 		    if ($line2 =~ /[a-zA-Z]/) {
 			# get mr number and insert comment
-			$line2 =~ /MRNUMBER = {([^}]*)}/;
+			$line2 =~ /MRNUMBER = \{([^}]*)}/;
 			$mr = $1;
 			&bib_print("", "$bsc Math Reviews number: $mr \n");
 			&bib_print ("", "$line2\n");
