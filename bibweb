@@ -5,10 +5,10 @@
 # File: bibweb
 # Author: John H. Palmieri <palmieri@math.washington.edu>
 #         URL: http://www.math.washington.edu/~palmieri/Bibweb/
-# Version: 0.64 of Tue Dec  3 13:49:21 PST 2019
+# Version: 0.70 of Thu Jul  6 12:50:29 PDT 2023
 # Description: retrieve bibliographical information from MathSciNet
 #              automatically
-# Copyright (c) 1997-2019 John H. Palmieri
+# Copyright (c) 1997-2023 John H. Palmieri
 # License: distributed under GNU General Public License -- see below.
 #
 ####################################################################
@@ -69,12 +69,10 @@ unless ($mozca) {
 
 $bibtex = 'bibtex';
 $thisprog = 'bibweb';
-$version = '0.64';
-# good choices for e_math: 'www.ams.org', 'ams.rice.edu',
-#   'ams.mathematik.uni-bielefeld.de', 'ams.mpim-bonn.mpg.de',
-#   'ams.u-strasbg.fr', 'ams.impa.br'
+$version = '0.70';
+# as of July '23, only known working choice for $e_math: 'mathscinet.ams.org'
 $e_math = $ENV{MATHSCINET_SITE};
-unless ($e_math) {$e_math = 'www.ams.org'}
+unless ($e_math) {$e_math = 'mathscinet.ams.org'}
 $use_stdout = 0;
 $debug = 0;
 $lax_comments = 0;
@@ -111,36 +109,6 @@ GetOptions("input|i=s" => \$auxfile,
 	   "help|h" => \$help) or
     die "$usage\n";
 if ($help) { die "$usage\n" };
-
-if ($e_math eq 'ams') {$e_math = 'www.ams.org'}
-if ($e_math eq 'rice') {$e_math = 'ams.rice.edu'}
-if ($e_math eq 'bielefeld') {$e_math = 'ams.mathematik.uni-bielefeld.de'}
-if ($e_math eq 'bonn') {$e_math = 'ams.mpim-bonn.mpg.de'}
-if ($e_math eq 'strasbg') {$e_math = 'ams.u-strasbg.fr'}
-if ($e_math eq 'impa') {$e_math = 'ams.impa.br'}
-
-if ($e_math =~ /
-	^www.ams.org$|
-	^ams.rice.edu$|
-	^ams.mathematik.uni-bielefeld.de$|
-	^ams.mpim-bonn.mpg.de$|
-	^ams.u-strasbg.fr$|
-        ^ams.impa.br$
-	/x) {
-    print "Using \`$e_math\' for the MathSciNet search.\n"
-    }
-    else {
-	print "Warning: Your choice of \`$e_math\' for the MathSciNet site
-is not one of the recommended choices.  Proceeding anyway...\n\n";
-}
-
-if ($e_math eq 'www.ams.org') {$redirect = 'Providence%2C+RI+USA'}
-if ($e_math eq 'ams.rice.edu') {$redirect = 'Houston%2C+TX+USA'}
-if ($e_math eq 'ams.mathematik.uni-bielefeld.de') {
-    $redirect = 'Bielefeld%2C+Germany'}
-if ($e_math eq 'ams.mpim-bonn.mpg.de') {$redirect = 'Bonn%2C+Germany'}
-if ($e_math eq 'ams.u-strasbg.fr') {$redirect = 'Strasbourg%2C+France'}
-if ($e_math eq 'ams.impa.br') {$redirect = 'Rio+de+Janeiro%2C+Brazil'}
 
 unless ($auxfile and $bibfile) {
     $file = shift(@ARGV);
@@ -231,7 +199,7 @@ foreach $warning (@bibtex_output) {
   }
 
     # construct URL
-    $url = "http://$e_math/mathscinet/search/publications.html?" .
+    $url = "https://$e_math/mathscinet/2006/mathscinet/search/publications.html?" .
 	"pg4=AUCN&s4=" .
 	"$author" .
 	"&co4=AND&pg5=TI&s5=" .
