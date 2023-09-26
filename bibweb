@@ -192,11 +192,26 @@ foreach $warning (@bibtex_output) {
     }
 
     # parse year entry
-  YEAR: {
-	  $dr = 'yearRangeFirst=&yearRangeSecond=&pg8=ET&s8=All';
-	  last YEAR;
-	  $yr = '';
-  }
+    YEAR: {
+      $dr = '&yearRangeFirst=&yearRangeSecond=&pg8=ET&s8=All&review_format=html';
+      # last YEAR;
+      if ($year =~ /^(\d{4})-(\d{4})$/) {
+	$yr = '&dr=pubyear&yrop=&arg3=';
+	$dr = '&yearRangeFirst='. $1 .'&yearRangeSecond=' . $2 . '&pg8=ET&s8=All&review_format=html';
+      }else{
+	$relation_year=substr($year, 0, 1);
+	if ($relation_year eq '<' ) {
+	  $yr = '&dr=pubyear&yrop=lt&arg3=' . substr($year, 1);
+	}
+	elsif ($relation_year eq '>' ) {
+	  $yr = '&dr=pubyear&yrop=gt&arg3=' . substr($year, 1);
+	}
+	else {
+	  $yr = '&dr=pubyear&yrop=eq&arg3=' . $year;
+	}
+      }
+      $yr = $yr . $dr;
+    }
 
     # construct URL
     $url = "https://$e_math/mathscinet/2006/mathscinet/search/publications.html?" .
@@ -208,9 +223,10 @@ foreach $warning (@bibtex_output) {
 	"$journal" .
 	"&co6=AND&pg7=ALLF&s7=" .
 	"$misc" .
-	"&Submit=Search&dr=all&yrop=eq&arg3=&" .
-	"$yr" .
+	"&co7=AND" .
+	"$yr" . "&Submit=Search" .
 	"&fmt=bibtex"	;
+
     unless ($use_stdout) {
 	&bib_print("", "$bibtex_long_comment \n");
     }
